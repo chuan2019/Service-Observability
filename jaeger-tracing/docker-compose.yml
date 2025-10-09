@@ -1,0 +1,131 @@
+services:
+  # Jaeger
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    container_name: jaeger
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14268:14268"  # Jaeger collector HTTP
+      - "14250:14250"  # Jaeger collector gRPC
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
+      - "6831:6831/udp"  # Jaeger agent UDP
+      - "6832:6832/udp"  # Jaeger agent UDP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:16686/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # FastAPI Application - Main Service
+  fastapi-main:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: fastapi-main
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_NAME=fastapi-main
+      - JAEGER_HOST=jaeger
+      - JAEGER_PORT=14268
+      - ENVIRONMENT=docker
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # FastAPI Application - User Service (Simulated microservice)
+  fastapi-user-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: fastapi-user-service
+    ports:
+      - "8001:8000"
+    environment:
+      - SERVICE_NAME=user-service
+      - JAEGER_HOST=jaeger
+      - JAEGER_PORT=14268
+      - ENVIRONMENT=docker
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # FastAPI Application - Order Service (Simulated microservice)
+  fastapi-order-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: fastapi-order-service
+    ports:
+      - "8002:8000"
+    environment:
+      - SERVICE_NAME=order-service
+      - JAEGER_HOST=jaeger
+      - JAEGER_PORT=14268
+      - ENVIRONMENT=docker
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # FastAPI Application - Payment Service (Simulated microservice)
+  fastapi-payment-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: fastapi-payment-service
+    ports:
+      - "8003:8000"
+    environment:
+      - SERVICE_NAME=payment-service
+      - JAEGER_HOST=jaeger
+      - JAEGER_PORT=14268
+      - ENVIRONMENT=docker
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  tracing-network:
+    driver: bridge
+
+volumes:
+  jaeger-data:
