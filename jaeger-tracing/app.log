@@ -1,0 +1,1055 @@
+nohup: ignoring input
+INFO:     Started server process [37980]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+FastAPI instrumented with OpenTelemetry
+Starting FastAPI application with Jaeger tracing...
+Tracing configured for service: fastapi-jaeger-demo
+OTLP endpoint: http://localhost:4318/v1/traces
+INFO:     127.0.0.1:33006 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33022 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33038 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56022 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56026 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34996 - "POST /payments HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1133, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/asgi/__init__.py", line 795, in __call__
+    await self.app(scope, otel_receive, otel_send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/fastapi/__init__.py", line 307, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 123, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 109, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 387, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 288, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/main.py", line 144, in process_payment
+    payment = await payment_service.process_payment(payment_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/payment_service.py", line 35, in process_payment
+    payment = await self._record_payment(payment_data, gateway_response)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/payment_service.py", line 147, in _record_payment
+    raise ValueError(f"Payment failed: {gateway_response.get('error_message', 'Unknown error')}")
+ValueError: Payment failed: Payment failed: insufficient funds
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54692 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58648 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /orders/999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "POST /orders HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1133, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/asgi/__init__.py", line 795, in __call__
+    await self.app(scope, otel_receive, otel_send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/fastapi/__init__.py", line 307, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 123, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 109, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 387, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 288, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/main.py", line 130, in create_order
+    order = await order_service.create_order(order_data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/order_service.py", line 67, in create_order
+    await self._validate_order_data(order_data)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/order_service.py", line 110, in _validate_order_data
+    raise ValueError(f"Missing required fields: {missing_fields}")
+ValueError: Missing required fields: ['user_id', 'amount']
+INFO:     127.0.0.1:54454 - "POST /orders HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1133, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/asgi/__init__.py", line 795, in __call__
+    await self.app(scope, otel_receive, otel_send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/fastapi/__init__.py", line 307, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 123, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 109, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 387, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 288, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/main.py", line 130, in create_order
+    order = await order_service.create_order(order_data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/order_service.py", line 67, in create_order
+    await self._validate_order_data(order_data)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/order_service.py", line 110, in _validate_order_data
+    raise ValueError(f"Missing required fields: {missing_fields}")
+ValueError: Missing required fields: ['user_id', 'amount']
+INFO:     127.0.0.1:54456 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54456 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54456 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54456 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54456 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54456 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54456 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41114 - "POST /orders HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1133, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/asgi/__init__.py", line 795, in __call__
+    await self.app(scope, otel_receive, otel_send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/fastapi/__init__.py", line 307, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 123, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 109, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 387, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 288, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/main.py", line 130, in create_order
+    order = await order_service.create_order(order_data)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/order_service.py", line 67, in create_order
+    await self._validate_order_data(order_data)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/order_service.py", line 110, in _validate_order_data
+    raise ValueError(f"Missing required fields: {missing_fields}")
+ValueError: Missing required fields: ['user_id', 'amount']
+INFO:     127.0.0.1:38980 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:38980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:38980 - "GET /users/999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:38980 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38980 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38228 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38228 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38228 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38228 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38228 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38228 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/3 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/2 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/3 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/1 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/3 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/1 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/2 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/2 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/1 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /demo/full-flow/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /demo/full-flow/2 HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48358 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48352 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48370 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48360 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48382 - "GET /demo/full-flow/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "GET /orders/999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:37204 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37204 - "POST /payments HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1133, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/asgi/__init__.py", line 795, in __call__
+    await self.app(scope, otel_receive, otel_send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/opentelemetry/instrumentation/fastapi/__init__.py", line 307, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 123, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 109, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 387, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 288, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/main.py", line 144, in process_payment
+    payment = await payment_service.process_payment(payment_data)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/payment_service.py", line 29, in process_payment
+    await self._validate_payment_data(payment_data)
+  File "/home/chuan/Documents/My_Study/Python/fastapi/Service-Observability/jaeger-tracing/app/services/payment_service.py", line 57, in _validate_payment_data
+    raise ValueError(f"Missing required fields: {missing_fields}")
+ValueError: Missing required fields: ['order_id', 'amount', 'method']
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37652 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/101 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /orders/102 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /users/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /orders HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /payments HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "POST /users HTTP/1.1" 200 OK
