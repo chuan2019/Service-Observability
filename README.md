@@ -1,3 +1,3 @@
 # Service-Observability
 
-- **[prometheus-metrics](./prometheus-metrics/)** - Metrics: Prometheus + Grafana
+- **Metrics** (Prometheus + Grafana): [prometheus-metrics](./prometheus-metrics/)
