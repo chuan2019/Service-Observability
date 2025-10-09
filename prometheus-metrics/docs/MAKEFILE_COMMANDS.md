@@ -219,7 +219,7 @@ When services are running, they are available at:
 - **Health Check**: http://localhost:8000/health/
 - **Metrics Endpoint**: http://localhost:8000/metrics
 - **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (admin/admin)
+- **Grafana**: http://localhost:3000 (admin/admin123)
 
 ## File Structure
 
