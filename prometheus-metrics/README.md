@@ -2,6 +2,11 @@
 
 A comprehensive FastAPI application demonstrating Prometheus metrics integration for monitoring and observability.
 
+## Prerequisites
+
+- [uv](https://docs.astral.sh/uv/) - Fast Python package manager and project manager
+- Docker and Docker Compose (for containerized deployment)
+
 ## Quick Start
 
 ```bash
@@ -100,22 +105,23 @@ metrics_01/
    cd /path/to/metrics_01
    ```
 
-2. **Install dependencies:**
+2. **Set up development environment with uv:**
    ```bash
-   pip install -r requirements.txt
+   # Initialize uv virtual environment and install dependencies
+   make dev-setup
+
+   # Or manually:
+   uv venv
+   uv sync --all-extras
    ```
 
-3. **Set up environment:**
+3. **Run the application:**
    ```bash
-   cp .env.example .env
-   # Edit .env file as needed
-   ```
+   # Using make (recommended)
+   make run-dev
 
-4. **Run the application:**
-   ```bash
-   python -m app.main
-   # or
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   # Or directly with uv
+   uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 5. **Access the application:**
@@ -156,6 +162,11 @@ make test           # Run tests
 make format         # Format code
 make lint           # Run linting
 make check          # All quality checks
+
+# UV Environment Management
+make uv-init        # Initialize uv environment
+make uv-sync        # Sync dependencies
+make uv-lock        # Update lockfile
 
 # Maintenance
 make backup         # Backup data

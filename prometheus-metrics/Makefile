@@ -1,6 +1,6 @@
 # Makefile for FastAPI Prometheus Metrics Application
 
-.PHONY: help install dev-install clean test lint format run docker-build docker-run docker-compose-up docker-compose-down \
+.PHONY: help install dev-install clean uv-lock uv-sync uv-init test lint format run docker-build docker-run docker-compose-up docker-compose-down \
         start stop restart status logs logs-app logs-prometheus logs-grafana \
         traffic-light traffic-medium traffic-heavy traffic-stop \
         monitor dashboard prometheus grafana \
@@ -11,12 +11,11 @@ help:  ## Show this help message
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-install:  ## Install production dependencies
-	pip install -r requirements.txt
+install:  ## Install production dependencies using uv
+	uv sync --no-dev
 
-dev-install:  ## Install development dependencies
-	pip install -r requirements.txt
-	pip install pytest pytest-asyncio httpx black flake8 isort coverage
+dev-install:  ## Install development dependencies using uv
+	uv sync --all-extras
 
 clean:  ## Clean up cache and temporary files
 	find . -type f -name "*.pyc" -delete
@@ -24,34 +23,44 @@ clean:  ## Clean up cache and temporary files
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	rm -rf .coverage htmlcov/ .pytest_cache/
 
+uv-lock:  ## Update uv.lock file
+	uv lock
+
+uv-sync:  ## Sync dependencies with uv.lock
+	uv sync
+
+uv-init:  ## Initialize uv project and create virtual environment
+	uv venv --clear
+	uv sync --all-extras
+
 test:  ## Run tests
-	pytest -v
+	uv run pytest -v
 
 test-coverage:  ## Run tests with coverage
-	pytest --cov=app --cov-report=html --cov-report=term-missing
+	uv run pytest --cov=app --cov-report=html --cov-report=term-missing
 
 lint:  ## Run linting
-	flake8 app/ tests/
+	uv run flake8 app/ tests/
 
 format:  ## Format code
-	black app/ tests/
-	isort app/ tests/
+	uv run black app/ tests/
+	uv run isort app/ tests/
 
 check:  ## Run all quality checks
 	@echo "Running format check..."
-	black --check app/ tests/
+	uv run black --check app/ tests/
 	@echo "Running import sort check..."
-	isort --check-only app/ tests/
+	uv run isort --check-only app/ tests/
 	@echo "Running linting..."
-	flake8 app/ tests/
+	uv run flake8 app/ tests/
 	@echo "Running tests..."
-	pytest
+	uv run pytest
 
 run:  ## Run the application locally
-	python -m app.main
+	uv run python -m app.main
 
 run-dev:  ## Run the application in development mode
-	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 docker-build:  ## Build Docker image
 	docker build -f docker/Dockerfile -t fastapi-prometheus-metrics .
@@ -84,10 +93,10 @@ metrics:  ## Show current metrics (requires running application)
 
 health:  ## Check application health
 	@echo "Checking application health..."
-	@curl -s http://localhost:8000/health/ | python -m json.tool
+	@curl -s http://localhost:8000/health/ | uv run python -m json.tool
 
 # Development workflow commands
-dev-setup: setup-env dev-install  ## Complete development setup
+dev-setup: setup-env uv-init  ## Complete development setup
 	@echo "Development environment setup complete!"
 	@echo "Run 'make run-dev' to start the application."
 
@@ -107,7 +116,7 @@ start:  ## Start all services (alias for docker-compose-up)
 	@echo "Services should be available at:"
 	@echo "  FastAPI App: http://localhost:8000"
 	@echo "  Prometheus:  http://localhost:9090"
-	@echo "  Grafana:     http://localhost:3000 (admin/admin)"
+	@echo "  Grafana:     http://localhost:3000 (admin/admin123)"
 
 stop:  ## Stop all services (alias for docker-compose-down)
 	@echo "Stopping all services..."
@@ -171,15 +180,15 @@ traffic-heavy:  ## Generate heavy traffic (concurrent requests for 2 minutes)
 
 traffic-burst:  ## Generate burst traffic using Python script
 	@echo "Generating burst traffic (5 bursts of 20 requests each)..."
-	@python scripts/generate_traffic.py burst --bursts 5 --size 20 --interval 3
+	@uv run python scripts/generate_traffic.py burst --bursts 5 --size 20 --interval 3
 
 traffic-random:  ## Generate random traffic using Python script  
 	@echo "Generating random traffic for 90 seconds..."
-	@python scripts/generate_traffic.py random --duration 90 --min-interval 0.1 --max-interval 1.5
+	@uv run python scripts/generate_traffic.py random --duration 90 --min-interval 0.1 --max-interval 1.5
 
 traffic-steady:  ## Generate steady traffic using Python script
 	@echo "Generating steady traffic (2 req/sec for 60 seconds)..."
-	@python scripts/generate_traffic.py steady --duration 60 --rate 2.0
+	@uv run python scripts/generate_traffic.py steady --duration 60 --rate 2.0
 
 traffic-stop:  ## Stop any running traffic generation
 	@echo "Stopping traffic generation processes..."
@@ -191,15 +200,15 @@ traffic-stop:  ## Stop any running traffic generation
 
 monitor:  ## Show real-time metrics dashboard
 	@echo "Starting real-time metrics monitor (Ctrl+C to stop)..."
-	@python scripts/monitor_metrics.py
+	@uv run python scripts/monitor_metrics.py
 
 monitor-once:  ## Show current metrics once
 	@echo "Fetching current metrics..."
-	@python scripts/monitor_metrics.py --once
+	@uv run python scripts/monitor_metrics.py --once
 
 monitor-simple:  ## Show simple metrics summary using curl
 	@echo "=== Application Health ==="
-	@curl -s http://localhost:8000/health/ | python -m json.tool 2>/dev/null || echo "App not responding"
+	@curl -s http://localhost:8000/health/ | uv run python -m json.tool 2>/dev/null || echo "App not responding"
 	@echo "\n=== Request Metrics (last 20 lines) ==="
 	@curl -s http://localhost:8000/metrics | grep -E "(http_requests_total|http_request_duration)" | tail -20
 	@echo "\n=== Custom Metrics ==="
@@ -274,7 +283,7 @@ reset:  ## Reset everything (stop, cleanup, rebuild, start)
 # COMPREHENSIVE SETUP COMMANDS
 # =============================================================================
 
-full-setup: setup-env dev-install start  ## Complete setup and start everything
+full-setup: setup-env uv-init start  ## Complete setup and start everything
 	@echo "=== FULL SETUP COMPLETED ==="
 	@echo "Your FastAPI Prometheus monitoring stack is ready!"
 	@echo ""
