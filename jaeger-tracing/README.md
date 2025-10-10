@@ -1,16 +1,16 @@
 # FastAPI + Jaeger + Kibana Observability Stack
 
-A complete production-ready observability stack demonstrating distributed tracing with FastAPI, Jaeger, and Kibana integration.
+A complete production-ready observability stack with distributed tracing, advanced analytics, and comprehensive monitoring. **Everything can be done with simple `make` commands!**
 
 ## Features
 
 - **FastAPI Application** with OpenTelemetry instrumentation
 - **Distributed Tracing** with Jaeger using OTLP protocol  
 - **Advanced Analytics** with Kibana and Elasticsearch
-- **Comprehensive Testing** with pytest (16 test cases)
+- **Comprehensive Testing** with pytest (16 test cases, 77% coverage)
 - **Traffic Generation** and load testing tools
 - **Docker Compose** for easy deployment
-- **Sample Data** and demonstration scripts
+- **Complete Makefile** for all operations
 
 ## Architecture
 
@@ -26,124 +26,160 @@ A complete production-ready observability stack demonstrating distributed tracin
                                                └─────────────────┘
 ```
 
-## Services
-
-| Service | Port | Description |
-|---------|------|-------------|
-| **FastAPI** | 8000 | Main application with OpenTelemetry tracing |
-| **Jaeger UI** | 16686 | Distributed tracing visualization |
-| **Kibana** | 5601 | Advanced search and analytics |
-| **Elasticsearch** | 9200 | Data storage and search engine |
-
 ## Prerequisites
 
 - Docker and Docker Compose
 - Python 3.9+
 - UV package manager
 
-## Quick Start
+## Quick Start (3 Commands!)
 
-### 1. Clone and Setup
-
+### 1. Setup Project
 ```bash
-cd jaeger-tracing
-uv sync
+make setup
 ```
 
-### 2. Start Infrastructure
-
+### 2. Start Everything
 ```bash
-# Start the complete observability stack
-./scripts/start_full_stack.sh
-
-# OR manually start individual services
-docker-compose up -d elasticsearch kibana jaeger
+make full-setup
 ```
 
-### 3. Start FastAPI Application
-
+### 3. Run Demo
 ```bash
-# Method 1: Using the start script
-./scripts/start_stack.sh
-
-# Method 2: Manual start
-uv run python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+make demo
 ```
 
-### 4. Run Integration Demo
+That's it! Your complete observability stack is running with sample data.
 
+## All Available Commands
+
+View all available commands:
 ```bash
-./scripts/demo_integration.sh
+make help
+```
+
+Output:
+```
+FastAPI Jaeger Tracing Demo
+===========================
+
+Available commands:
+  help            Show this help message
+  install         Install project dependencies using uv
+  install-dev     Install development dependencies
+  setup           Setup the project environment
+  run             Run FastAPI application locally
+  run-dev         Run FastAPI application in development mode with hot reload
+  run-jaeger      Start only Jaeger using Docker Compose
+  docker-build    Build Docker images
+  docker-up       Start all services with Docker Compose
+  docker-down     Stop all Docker services
+  docker-logs     Show Docker logs
+  docker-clean    Clean up Docker resources
+  lint            Run linting with ruff
+  format          Format code with black and ruff
+  type-check      Run type checking with mypy
+  test            Run tests
+  test-coverage   Run tests with coverage
+  traffic         Generate sample traffic (60 seconds)
+  traffic-demo    Run demo traffic scenarios
+  traffic-stress  Run stress test traffic
+  load-test       Run comprehensive load test
+  load-test-heavy Run heavy load test
+  demo            Run full demo sequence
+  demo-clean      Clean demo and restart
+  health          Check service health
+  status          Show service status
+  clean           Clean up temporary files and caches
+  dev-setup       Quick development setup
+  full-setup      Full setup with all services
+  full-stop       Stop all services and processes completely
+  logs-app        Show application logs
+  logs-jaeger     Show Jaeger logs
+  shell-app       Open shell in main application container
+  env-info        Show environment information
+```
+
+## Essential Commands
+
+### Setup & Development
+```bash
+make setup          # Initial project setup
+make full-setup     # Start complete observability stack
+make full-stop      # Stop everything
+make clean          # Clean up temporary files
+```
+
+### Running Services
+```bash
+make docker-up      # Start all services with Docker
+make docker-down    # Stop Docker services
+make run-dev        # Run FastAPI locally with hot reload
+make status         # Check service status
+make health         # Health check all services
+```
+
+### Testing & Quality
+```bash
+make test           # Run all tests (16 tests)
+make test-coverage  # Run tests with coverage report (77%)
+make lint           # Code linting
+make format         # Format code
+```
+
+### Traffic & Load Testing
+```bash
+make traffic-demo   # Generate demo traffic
+make load-test      # Run load test (10 users, 50 requests each)
+make load-test-heavy # Heavy load test (25 users, 100 requests each)
+make demo           # Complete demo sequence
 ```
 
 ## Service URLs
 
-- **FastAPI Application**: http://localhost:8000
-  - API Documentation: http://localhost:8000/docs
-  - Health Check: http://localhost:8000/health
+After running `make full-setup`, access:
 
-- **Jaeger UI**: http://localhost:16686
-  - Service: `fastapi-jaeger-demo`
-
-- **Kibana**: http://localhost:5601
-  - Index Pattern: `jaeger-traces-demo*`
-
-- **Elasticsearch**: http://localhost:9200
+| Service | URL | Description |
+|---------|-----|-------------|
+| **FastAPI** | http://localhost:8000 | Main application |
+| **API Docs** | http://localhost:8000/docs | Interactive API documentation |
+| **Health** | http://localhost:8000/health | Health check endpoint |
+| **Jaeger UI** | http://localhost:16686 | Distributed tracing visualization |
+| **Kibana** | http://localhost:5601 | Advanced analytics dashboard |
+| **Elasticsearch** | http://localhost:9200 | Search engine API |
 
 ## Testing
 
-Run the comprehensive test suite:
-
+### Run Tests
 ```bash
-# Run all tests
-uv run pytest tests/test_main.py -v
-
-# Run with coverage
-uv run pytest tests/test_main.py --cov=app --cov-report=html
-
-# Test specific functionality
-uv run pytest tests/test_main.py::TestHealthEndpoint -v
+make test           # All 16 tests with detailed output
+make test-coverage  # Tests + coverage report (77% coverage)
 ```
 
-## Generating Traffic
-
-### Basic Traffic Generation
-
+### Generate Test Traffic
 ```bash
-# Generate sample API calls
-uv run python scripts/generate_traffic.py
-
-# Run load test
-uv run python scripts/load_test.py
+make traffic-demo   # Demo scenarios
+make load-test      # Performance testing
 ```
 
-### Create Demo Traces in Kibana
+## Viewing Results
 
-```bash
-# Create sample trace data for Kibana analysis
-uv run python scripts/create_demo_traces.py
-```
+### Jaeger Tracing (http://localhost:16686)
+After running `make demo`:
+1. Open Jaeger UI
+2. Select service: `fastapi-jaeger-demo`
+3. Click "Find Traces" to see all distributed traces
+4. Click on individual traces to see detailed timing
 
-## Kibana Integration
-
-### Setting Up Kibana for Trace Analysis
-
-1. **Access Kibana**: Visit http://localhost:5601
-
-2. **Set Up Index Pattern**:
-   - Go to **Stack Management** → **Index Patterns**
-   - Select `jaeger-traces-demo*` index pattern
-   - Set `timestamp` as the time field
-
-3. **Explore Traces in Discover**:
-   - Go to **Discover**
-   - Select the `jaeger-traces-demo*` index pattern
-   - Use time picker to filter by time range
+### Kibana Analytics (http://localhost:5601)
+Advanced trace analysis:
+1. Go to **Discover**
+2. Select `jaeger-span-*` index pattern
+3. Explore traces with advanced queries
 
 ### Sample Kibana Queries
-
 ```kuery
-# Find all traces for a specific service
+# Find all traces for main service
 service: "fastapi-jaeger-demo"
 
 # Find error traces
@@ -152,316 +188,196 @@ error: true
 # Find slow operations (> 1 second)
 duration_ms: >1000
 
-# Find specific HTTP methods
-method: "POST"
-
-# Find specific status codes
-status_code: 500
-
-# Complex query: Find slow POST requests with errors
-method: "POST" AND duration_ms: >500 AND error: true
+# Find POST requests with errors
+method: "POST" AND error: true
 ```
 
-### Creating Dashboards
+## Development Workflows
 
-You can create visualizations and dashboards for:
-- **Response time trends**
-- **Error rate by service**
-- **Request volume over time**
-- **Service dependency mapping**
-- **Performance percentiles**
+### Quick Development Cycle
+```bash
+make setup          # One-time setup
+make run-dev        # Start with hot reload
+# Make code changes
+make test           # Run tests
+make format         # Format code
+```
+
+### Full Testing Cycle
+```bash
+make full-setup     # Start all services
+make demo           # Generate sample data
+make test-coverage  # Comprehensive testing
+make full-stop      # Clean shutdown
+```
+
+### Debug Issues
+```bash
+make status         # Check service status
+make health         # Health check endpoints
+make logs-app       # View application logs
+make logs-jaeger    # View Jaeger logs
+```
 
 ## Project Structure
 
 ```
 jaeger-tracing/
-├── app/                    # FastAPI application
-│   ├── main.py            # Main application
-│   ├── models.py          # Data models
-│   └── routers/           # API route handlers
-├── config/                # Configuration
-│   └── tracing.py         # OpenTelemetry setup
-├── tests/                 # Test suite
-│   └── test_main.py       # Comprehensive tests
-├── scripts/               # Utility scripts
-│   ├── demo_integration.sh
-│   ├── generate_traffic.py
-│   ├── load_test.py
-│   ├── create_demo_traces.py
-│   └── setup_kibana.sh
-├── kibana/                # Kibana configuration
-├── docker-compose.yml     # Infrastructure setup
-└── pyproject.toml         # Project dependencies
+├── Makefile              # All commands in one place!
+├── app/                  # FastAPI application
+│   ├── main.py          # Main app with tracing
+│   └── services/        # Business logic services
+├── config/              # Configuration
+│   └── tracing.py       # OpenTelemetry setup
+├── tests/               # Test suite (16 tests, 77% coverage)
+│   └── test_main.py     # Comprehensive tests
+├── scripts/             # Traffic generation & utilities
+├── docker/              # Docker configuration
+├── kibana/              # Kibana configuration
+├── docker-compose.yml   # Complete stack definition
+└── pyproject.toml       # Dependencies
+```
+
+## Common Use Cases
+
+### Demo for Presentation
+```bash
+make demo               # Complete automated demo
+```
+
+### Development
+```bash
+make dev-setup         # Quick dev environment
+make run-dev           # Hot reload development
+```
+
+### Testing
+```bash
+make test              # Unit tests
+make load-test         # Performance testing
+```
+
+### Production Simulation
+```bash
+make full-setup        # Complete production-like stack
+make traffic-stress    # Stress testing
 ```
 
 ## Configuration
 
-### OpenTelemetry Configuration
+All services are pre-configured and work out of the box! Key configurations:
 
-The tracing configuration is in `config/tracing.py`:
-
-```python
-# Key configuration
-SERVICE_NAME = "fastapi-jaeger-demo"
-JAEGER_ENDPOINT = "http://localhost:4318/v1/traces"  # OTLP HTTP
-```
-
-### Jaeger Configuration
-
-Jaeger is configured to:
-- Accept OTLP traces on port 4318
-- Store data in Elasticsearch
-- Provide UI on port 16686
-
-### Kibana Configuration
-
-Kibana is configured to:
-- Connect to Elasticsearch
-- Provide analytics UI on port 5601
-- Support advanced trace queries
+- **OpenTelemetry**: OTLP HTTP endpoint (port 4318)
+- **Jaeger**: UI on port 16686, stores data in Elasticsearch
+- **Kibana**: Analytics UI on port 5601
+- **Elasticsearch**: Data storage on port 9200
 
 ## API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check endpoint |
-| `/users` | GET | List users |
-| `/users` | POST | Create user |
-| `/users/{user_id}` | GET | Get user |
-| `/orders` | POST | Create order |
-| `/orders/{order_id}` | GET | Get order |
-| `/payments` | POST | Process payment |
-| `/demo/full-flow/{user_id}` | GET | Demonstrate full flow |
+After running `make full-setup`, test these endpoints:
+
+| Endpoint | Method | Description | Test Command |
+|----------|--------|-------------|--------------|
+| `/health` | GET | Health check | `curl http://localhost:8000/health` |
+| `/users` | POST | Create user | `curl -X POST http://localhost:8000/users -H "Content-Type: application/json" -d '{"name":"John","email":"john@example.com"}'` |
+| `/users/{id}` | GET | Get user | `curl http://localhost:8000/users/1` |
+| `/orders` | POST | Create order | `curl -X POST http://localhost:8000/orders -H "Content-Type: application/json" -d '{"user_id":1,"product":"Widget","amount":99.99}'` |
+| `/orders/{id}` | GET | Get order | `curl http://localhost:8000/orders/101` |
+| `/payments` | POST | Process payment | `curl -X POST http://localhost:8000/payments -H "Content-Type: application/json" -d '{"amount":99.99,"method":"credit_card"}'` |
+| `/demo/full-flow/{id}` | GET | Full flow demo | `curl http://localhost:8000/demo/full-flow/1` |
 
 ## Observability Features
 
-### Distributed Tracing
-
-The application creates detailed spans for:
-- HTTP requests and responses
+### Automatic Tracing
+Every request is automatically traced with:
+- HTTP request/response details
 - Database operations (simulated)
-- Business logic operations
-- Error conditions and exceptions
+- Business logic timing
+- Error tracking and exception details
+- Service dependencies
 
-### Custom Spans
-
-Example of custom span creation:
-
-```python
-from opentelemetry import trace
-
-tracer = trace.get_tracer(__name__)
-
-with tracer.start_as_current_span("custom_operation") as span:
-    span.set_attribute("operation.type", "business_logic")
-    # Your code here
-```
+### What You'll See in Jaeger
+- Complete request flows across services
+- Performance breakdown by operation
+- Error traces with stack traces
+- Service dependency maps
+- Response time distributions
 
 ## Troubleshooting
 
-### Common Issues
-
-1. **Services not starting**: Check Docker is running and ports are available
-2. **No traces in Jaeger**: Verify OTLP endpoint configuration
-3. **Kibana not showing data**: Ensure Elasticsearch is running and index pattern is created
-
-### Debugging Commands
-
+### Quick Debugging
 ```bash
-# Check service status
-curl http://localhost:8000/health
-curl http://localhost:16686/api/services
-curl http://localhost:5601/api/status
-
-# Check Elasticsearch indices
-curl http://localhost:9200/_cat/indices
-
-# View logs
-docker-compose logs jaeger
-docker-compose logs elasticsearch
-docker-compose logs kibana
+make status         # Check all services
+make health         # Health check endpoints
+make logs-app       # View application logs
+make logs-jaeger    # View Jaeger logs
 ```
 
-## Production Considerations
+### Common Issues & Solutions
 
-### Security
-- Configure authentication for Kibana
-- Secure Elasticsearch cluster
-- Use HTTPS for all services
-- Implement proper API keys
+| Issue | Command | Solution |
+|-------|---------|----------|
+| Services not starting | `make status` | Check Docker is running, ports available |
+| No traces in Jaeger | `make health` | Verify all services are healthy |
+| Tests failing | `make test` | Check error output, run `make format` |
+| Port conflicts | `make full-stop` | Stop all services, then restart |
 
-### Performance
-- Configure sampling rates for high-traffic applications
-- Set up proper Elasticsearch cluster sizing
-- Monitor resource usage
-- Implement retention policies
-
-### Monitoring
-- Set up alerts for trace errors
-- Monitor service performance metrics
-- Track system resource usage
-- Configure backup strategies
-```
-
-### Production Deployment
-
+### Manual Health Checks
 ```bash
-# Build and start all services
-make docker-build
-make docker-up
-
-# Services included:
-# - FastAPI Main Service (port 8000)
-# - User Service (port 8001)
-# - Order Service (port 8002) 
-# - Payment Service (port 8003)
-# - Jaeger (port 16686)
+curl http://localhost:8000/health    # FastAPI
+curl http://localhost:16686/         # Jaeger UI
+curl http://localhost:5601/api/status # Kibana
+curl http://localhost:9200/_cluster/health # Elasticsearch
 ```
 
-### Service URLs
+## Production Ready
 
-- **Main Application**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **User Service**: http://localhost:8001
-- **Order Service**: http://localhost:8002
-- **Payment Service**: http://localhost:8003
-- **Jaeger UI**: http://localhost:16686
-
-## Testing
-
-### Unit Tests
-
+### Complete Stack Deployment
 ```bash
-# Run all tests
-make test
-
-# Run with coverage
-make test-coverage
+make docker-build   # Build all images
+make full-setup     # Deploy complete stack
+make demo           # Validate with demo data
 ```
 
-### Integration Tests
+### Services Included
+- **FastAPI Main Service** (port 8000) - Primary application
+- **User Service** (port 8001) - User management microservice  
+- **Order Service** (port 8002) - Order processing microservice
+- **Payment Service** (port 8003) - Payment processing microservice
+- **Jaeger** (port 16686) - Distributed tracing UI
+- **Elasticsearch** (port 9200) - Data storage
+- **Kibana** (port 5601) - Analytics dashboard
 
-```bash
-# Test with running services
-uv run pytest tests/integration/
-```
-
-### Manual Testing
-
-```bash
-# Check service health
-make health
-
-# Test specific endpoints
-curl http://localhost:8000/health
-curl http://localhost:8000/users/1
-curl -X POST http://localhost:8000/orders -H "Content-Type: application/json" -d '{"user_id": 1, "amount": 99.99}'
-```
-
-## Demo Scenarios
-
-### Complete Demo
-
-```bash
-# Run full demo sequence
-make demo
-
-# This will:
-# 1. Start all services
-# 2. Generate demo traffic
-# 3. Run load tests
-# 4. Display results
-```
-
-### Step-by-Step Demo
-
-1. **Start Services**
-   ```bash
-   make docker-up
-   ```
-
-2. **Generate Base Traffic**
-   ```bash
-   make traffic-demo
-   ```
-
-3. **Show Jaeger UI**
-   - Open http://localhost:16686
-   - Search for service: `fastapi-jaeger-demo`
-   - Show trace timeline and service map
-
-4. **Generate Load**
-   ```bash
-   make load-test
-   ```
-
-5. **Analyze Results**
-   - Performance bottlenecks
-## Advanced Kibana Analytics
-
-### Dashboard Ideas
-1. **Service Performance Dashboard**
-   - Average response time by service
-   - Request count over time
-   - Error rate percentage
-
-2. **Error Analysis Dashboard**
-   - Top errors by service
-   - Error trends over time
-   - Error details and stack traces
-
-3. **Business Metrics Dashboard**
-   - User signup trends
-   - Order completion rates
-   - Payment success rates
-
-### Alerting
-Set up alerts in Kibana for:
-- High error rates (> 5%)
-- Slow responses (> 2 seconds)
-- Service downtime
-- Unusual traffic patterns
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Run the test suite
-6. Submit a pull request
-
-## Documentation
+## Documentation & Resources
 
 - [OpenTelemetry Python Documentation](https://opentelemetry.io/docs/instrumentation/python/)
 - [Jaeger Documentation](https://www.jaegertracing.io/docs/)
 - [Kibana Documentation](https://www.elastic.co/guide/en/kibana/current/index.html)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 
-## Features Demonstrated
+## What You Get
 
 **Complete Observability Stack**
 - Distributed tracing with Jaeger
-- Advanced analytics with Kibana
+- Advanced analytics with Kibana  
 - Data persistence with Elasticsearch
-- Real-time monitoring and alerting
+- Real-time monitoring capabilities
 
 **Production-Ready Code**
+- 16 comprehensive test cases (77% coverage)
 - Comprehensive error handling
-- Proper logging and instrumentation
-- Configuration management
 - Docker containerization
-
-**Testing & Validation**
-- 16 comprehensive test cases
 - Load testing capabilities
-- Integration testing
-- Health checks and monitoring
 
-**Developer Experience**
-- Easy setup and deployment
-- Comprehensive documentation
-- Utility scripts for common tasks
-- Clear troubleshooting guides
+**Developer Experience**  
+- **Single-command setup**: `make full-setup`
+- **Single-command demo**: `make demo`
+- **Single-command cleanup**: `make full-stop`
+- Comprehensive Makefile for all operations
+- Clear troubleshooting with `make help`
 
-This project demonstrates a complete, production-ready observability stack that can be adapted for any microservices architecture requiring distributed tracing and advanced analytics capabilities.
+This project demonstrates a complete, production-ready observability stack that can be adapted for any microservices architecture. **Everything is automated with make commands for the best developer experience!**
+
+---
+
+**TL;DR**: Run `make setup && make full-setup && make demo` for a complete working observability stack in 3 commands!
