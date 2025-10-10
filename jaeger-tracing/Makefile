@@ -1,5 +1,5 @@
 # FastAPI Jaeger Tracing Demo - Makefile
-.PHONY: help install install-dev run run-dev docker-build docker-up docker-down docker-logs clean test lint format traffic demo load-test
+.PHONY: help install install-dev run run-dev docker-build docker-up docker-down docker-logs clean test lint format traffic demo load-test full-stop
 
 # Default target
 help: ## Show this help message
@@ -172,6 +172,22 @@ full-setup: ## Full setup with all services
 	make install-dev
 	make docker-up
 	@echo "Full environment ready!"
+
+full-stop: ## Stop all services and processes completely
+	@echo "Stopping all services and processes..."
+	@echo "1. Stopping Docker services..."
+	-docker-compose down 2>/dev/null
+	-docker-compose -f docker-compose.dev.yml down 2>/dev/null
+	@echo "2. Killing local FastAPI processes..."
+	-pkill -f "uvicorn.*app.main:app" 2>/dev/null
+	-pkill -f "python.*app/main.py" 2>/dev/null
+	-pkill -f "python.*-m.*uvicorn.*app.main:app" 2>/dev/null
+	@echo "3. Stopping traffic generation processes..."
+	-pkill -f "generate_traffic.py" 2>/dev/null
+	-pkill -f "load_test.py" 2>/dev/null
+	@echo "4. Cleaning up any remaining processes..."
+	-pkill -f "fastapi-jaeger-tracing" 2>/dev/null
+	@echo "All services stopped!"
 
 # Monitoring and Debugging
 logs-app: ## Show application logs
