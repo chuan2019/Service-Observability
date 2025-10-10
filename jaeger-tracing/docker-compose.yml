@@ -1,5 +1,58 @@
 services:
-  # Jaeger
+  # Elasticsearch for data storage
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.15
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - cluster.name=jaeger-cluster
+      - node.name=jaeger-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Kibana for data visualization and analysis
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.15
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=false
+    volumes:
+      - kibana-data:/usr/share/kibana/data
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Jaeger with Elasticsearch backend
   jaeger:
     image: jaegertracing/all-in-one:1.50
     container_name: jaeger
@@ -14,6 +67,14 @@ services:
     environment:
       - COLLECTOR_OTLP_ENABLED=true
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=http://elasticsearch:9200
+      - ES_USERNAME=
+      - ES_PASSWORD=
+      - ES_INDEX_PREFIX=jaeger
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     networks:
       - tracing-network
     healthcheck:
@@ -26,7 +87,7 @@ services:
   # FastAPI Application - Main Service
   fastapi-main:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
     container_name: fastapi-main
     ports:
@@ -37,6 +98,10 @@ services:
       - JAEGER_PORT=14268
       - ENVIRONMENT=docker
     depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
       jaeger:
         condition: service_healthy
     networks:
@@ -51,7 +116,7 @@ services:
   # FastAPI Application - User Service (Simulated microservice)
   fastapi-user-service:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
     container_name: fastapi-user-service
     ports:
@@ -76,7 +141,7 @@ services:
   # FastAPI Application - Order Service (Simulated microservice)
   fastapi-order-service:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
     container_name: fastapi-order-service
     ports:
@@ -101,7 +166,7 @@ services:
   # FastAPI Application - Payment Service (Simulated microservice)
   fastapi-payment-service:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile
     container_name: fastapi-payment-service
     ports:
@@ -129,3 +194,5 @@ networks:
 
 volumes:
   jaeger-data:
+  elasticsearch-data:
+  kibana-data:

@@ -1,0 +1,9 @@
+server.name: kibana-jaeger
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+
+# Disable security for this demo
+xpack.security.enabled: false
+
+# Enable monitoring
+monitoring.ui.container.elasticsearch.enabled: true

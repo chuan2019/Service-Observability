@@ -1,7 +1,10 @@
 """Comprehensive tests for the FastAPI Jaeger tracing demo application."""
 
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 
@@ -11,33 +14,33 @@ def client():
     return TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def mock_random_for_tests():
+    """Mock random functions to ensure deterministic test behavior."""
+    with (
+        patch("random.random", return_value=0.8),
+        patch("random.uniform", return_value=0.02),
+    ):
+        yield
+
+
 @pytest.fixture
 def sample_user_data():
     """Sample user data for testing."""
-    return {
-        "name": "Test User",
-        "email": "test@example.com"
-    }
+    return {"name": "Test User", "email": "test@example.com"}
 
 
 @pytest.fixture
 def sample_order_data():
     """Sample order data for testing."""
-    return {
-        "user_id": 1,
-        "product": "Test Product",
-        "amount": 99.99
-    }
+    return {"user_id": 1, "product": "Test Product", "amount": 99.99}
 
 
 @pytest.fixture
 def sample_payment_data():
     """Sample payment data for testing."""
-    return {
-        "order_id": 101,
-        "amount": 107.99,
-        "method": "credit_card"
-    }
+    return {"order_id": 101, "amount": 107.99, "method": "credit_card"}
+
 
 class TestHealthAndRoot:
     """Test health and root endpoints."""
@@ -77,7 +80,7 @@ class TestUserEndpoints:
         # Create a user first
         create_response = client.post("/users", json=sample_user_data)
         user_id = create_response.json()["id"]
-        
+
         # Get the user
         response = client.get(f"/users/{user_id}")
         assert response.status_code == 200
@@ -113,7 +116,7 @@ class TestOrderEndpoints:
         response = client.post("/orders", json=sample_order_data)
         # Order creation can succeed (200) or fail (500) due to random inventory simulation
         assert response.status_code in [200, 500]
-        
+
         if response.status_code == 200:
             order = response.json()
             assert order["user_id"] == sample_order_data["user_id"]
@@ -126,7 +129,7 @@ class TestOrderEndpoints:
         # Create an order first
         create_response = client.post("/orders", json=sample_order_data)
         order_id = create_response.json()["id"]
-        
+
         # Get the order
         response = client.get(f"/orders/{order_id}")
         assert response.status_code == 200
@@ -192,7 +195,7 @@ class TestDemoEndpoints:
         # Create a user first to get a valid user_id
         user_response = client.post("/users", json=sample_user_data)
         user_id = user_response.json()["id"]
-        
+
         # Test the full flow - can succeed or fail due to random simulation
         try:
             response = client.get(f"/demo/full-flow/{user_id}")
@@ -202,15 +205,18 @@ class TestDemoEndpoints:
             assert "user" in data
             assert "order" in data
             assert "payment" in data
-            assert data["flow_status"] == "completed"  # Actual field value is "completed"
+            assert (
+                data["flow_status"] == "completed"
+            )  # Actual field value is "completed"
             assert data["user"]["id"] == user_id
         except Exception as e:
             # Flow might fail due to random inventory check or payment simulation
             # This is expected behavior and shows the error handling is working
             error_msg = str(e).lower()
-            assert any(keyword in error_msg for keyword in [
-                "payment failed", "out of stock", "flow failed"
-            ])
+            assert any(
+                keyword in error_msg
+                for keyword in ["payment failed", "out of stock", "flow failed"]
+            )
 
     def test_demo_full_flow_nonexistent_user(self, client):
         """Test full flow with non-existent user."""
@@ -227,13 +233,10 @@ class TestTracingIntegration:
         # Make several requests to generate traces
         responses = []
         for i in range(3):
-            user_data = {
-                "name": f"User {i}",
-                "email": f"user{i}@example.com"
-            }
+            user_data = {"name": f"User {i}", "email": f"user{i}@example.com"}
             response = client.post("/users", json=user_data)
             responses.append(response)
-        
+
         # All requests should succeed
         for response in responses:
             assert response.status_code == 200
@@ -241,14 +244,14 @@ class TestTracingIntegration:
     def test_error_handling_with_tracing(self, client):
         """Test error handling doesn't break with tracing enabled."""
         # Test various error conditions
-        
+
         # Test 404 errors
         response1 = client.get("/users/99999")
         assert response1.status_code == 404
-        
+
         response3 = client.get("/orders/99999")
         assert response3.status_code == 404
-        
+
         # Test validation error (ValueError exception)
         try:
             response2 = client.post("/users", json={})

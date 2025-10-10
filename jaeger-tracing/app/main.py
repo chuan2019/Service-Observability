@@ -1,13 +1,13 @@
 """Main FastAPI application with Jaeger tracing."""
 
 from contextlib import asynccontextmanager
-from typing import Dict, Any
+from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import setup_tracing, instrument_fastapi, get_tracer
-from app.services import UserService, OrderService, PaymentService
+from app.services import OrderService, PaymentService, UserService
+from config import get_tracer, instrument_fastapi, setup_tracing
 
 
 @asynccontextmanager
@@ -75,7 +75,7 @@ async def get_user(user_id: int) -> Dict[str, Any]:
         span.set_attribute("endpoint", "/users/{user_id}")
         span.set_attribute("user_id", user_id)
         span.set_attribute("method", "GET")
-        
+
         try:
             user = await user_service.get_user(user_id)
             span.set_attribute("user.found", True)
@@ -93,7 +93,7 @@ async def create_user(user_data: Dict[str, Any]) -> Dict[str, Any]:
         span.set_attribute("endpoint", "/users")
         span.set_attribute("method", "POST")
         span.set_attribute("user.name", user_data.get("name", ""))
-        
+
         user = await user_service.create_user(user_data)
         span.set_attribute("user.created_id", user["id"])
         return user
@@ -106,7 +106,7 @@ async def get_order(order_id: int) -> Dict[str, Any]:
         span.set_attribute("endpoint", "/orders/{order_id}")
         span.set_attribute("order_id", order_id)
         span.set_attribute("method", "GET")
-        
+
         try:
             order = await order_service.get_order(order_id)
             span.set_attribute("order.found", True)
@@ -125,7 +125,7 @@ async def create_order(order_data: Dict[str, Any]) -> Dict[str, Any]:
         span.set_attribute("method", "POST")
         span.set_attribute("order.user_id", order_data.get("user_id", 0))
         span.set_attribute("order.amount", order_data.get("amount", 0.0))
-        
+
         # This will create a distributed trace across multiple services
         order = await order_service.create_order(order_data)
         span.set_attribute("order.created_id", order["id"])
@@ -140,7 +140,7 @@ async def process_payment(payment_data: Dict[str, Any]) -> Dict[str, Any]:
         span.set_attribute("method", "POST")
         span.set_attribute("payment.order_id", payment_data.get("order_id", 0))
         span.set_attribute("payment.amount", payment_data.get("amount", 0.0))
-        
+
         payment = await payment_service.process_payment(payment_data)
         span.set_attribute("payment.status", payment["status"])
         return payment
@@ -153,37 +153,37 @@ async def demo_full_flow(user_id: int) -> Dict[str, Any]:
         span.set_attribute("endpoint", "/demo/full-flow/{user_id}")
         span.set_attribute("user_id", user_id)
         span.set_attribute("method", "GET")
-        
+
         try:
             # Get user
             user = await user_service.get_user(user_id)
             span.set_attribute("step", "user_retrieved")
-            
+
             # Create order
             order_data = {
                 "user_id": user_id,
                 "amount": 99.99,
-                "items": ["item1", "item2"]
+                "items": ["item1", "item2"],
             }
             order = await order_service.create_order(order_data)
             span.set_attribute("step", "order_created")
             span.set_attribute("order.id", order["id"])
-            
+
             # Process payment
             payment_data = {
                 "order_id": order["id"],
                 "amount": order["amount"],
-                "method": "credit_card"
+                "method": "credit_card",
             }
             payment = await payment_service.process_payment(payment_data)
             span.set_attribute("step", "payment_processed")
             span.set_attribute("payment.status", payment["status"])
-            
+
             return {
                 "user": user,
                 "order": order,
                 "payment": payment,
-                "flow_status": "completed"
+                "flow_status": "completed",
             }
         except Exception as e:
             span.set_attribute("error", str(e))
@@ -193,4 +193,5 @@ async def demo_full_flow(user_id: int) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
