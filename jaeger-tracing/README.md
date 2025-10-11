@@ -34,19 +34,23 @@ A complete production-ready observability stack with distributed tracing, advanc
 
 ## Quick Start (3 Commands!)
 
-### 1. Setup Project
+### 1. Setup Dev, Check Dev Status, and Stop Dev
 ```bash
-make setup
+make setup-dev
+make status-dev
+make stop-dev
 ```
 
-### 2. Start Everything
+### 2. Setup Prod, Check Prod Status, and Stop Prod
 ```bash
-make full-setup
+make setup-prod
+make status-prod
+make stop-prod
 ```
 
-### 3. Run Demo
+### 3. Cleanup
 ```bash
-make demo
+make clean
 ```
 
 That's it! Your complete observability stack is running with sample data.
@@ -56,10 +60,11 @@ That's it! Your complete observability stack is running with sample data.
 For active development with automatic code reloading:
 
 ```bash
-make dev-setup          # Build development images  
-make docker-dev-up      # Start containers with volume mounts
+make setup-dev          # Start development with hot reload
+make status-dev         # Check development status
 # Edit any source file - changes trigger hot reload!
 ./scripts/hot_reload_demo.sh  # See hot reload in action
+make stop-dev           # Stop and clean development environment
 ```
 
 **Services available:**
@@ -83,17 +88,9 @@ FastAPI Jaeger Tracing Demo
 
 Available commands:
   help            Show this help message
-  install         Install project dependencies using uv
-  install-dev     Install development dependencies
-  setup           Setup the project environment
   run             Run FastAPI application locally
   run-dev         Run FastAPI application in development mode with hot reload
   run-jaeger      Start only Jaeger using Docker Compose
-  docker-build    Build Docker images
-  docker-up       Start all services with Docker Compose
-  docker-down     Stop all Docker services
-  docker-logs     Show Docker logs
-  docker-clean    Clean up Docker resources
   lint            Run linting with ruff
   format          Format code with black and ruff
   type-check      Run type checking with mypy
@@ -104,48 +101,70 @@ Available commands:
   traffic-stress  Run stress test traffic
   load-test       Run comprehensive load test
   load-test-heavy Run heavy load test
-  demo            Run full demo sequence
-  demo-clean      Clean demo and restart
+  api-docs        Open API documentation in browser
+  setup-prod      Run full demo sequence (production-like)
+  setup-dev       Run development demo with hot reload
+  stop-prod       stop and clean production demo
+  stop-dev        stop and clean development demo
+  health          Check service health
+  status          Show service status
+  status-dev      Show development cluster status with health checks
+  status-prod     Show production cluster status with health checks
+  clean           Clean up temporary files and caches
+  logs-dev        Show development logs
+  logs-prod       Show production logs
+  shell-app       Open shell in main application container
+  env-info        Show environment information
+  lint            Run linting with ruff
+  format          Format code with black and ruff
+  type-check      Run type checking with mypy
+  test            Run tests
+  test-coverage   Run tests with coverage
+  traffic         Generate sample traffic (60 seconds)
+  traffic-demo    Run demo traffic scenarios
+  traffic-stress  Run stress test traffic
+  load-test       Run comprehensive load test
+  load-test-heavy Run heavy load test
+
   health          Check service health
   status          Show service status
   clean           Clean up temporary files and caches
-  dev-setup       Quick development setup
-  full-setup      Full setup with all services
-  full-stop       Stop all services and processes completely
-  logs-app        Show application logs
-  logs-jaeger     Show Jaeger logs
+
+
   shell-app       Open shell in main application container
   env-info        Show environment information
 ```
 
 ## Essential Commands
 
-### Docker Development (Recommended - Hot Reload)
+### Development Workflow
 ```bash
-make dev-setup      # Build development images
-make docker-dev-up  # Start with volume mounts for hot reload
-make docker-dev-logs # View development logs
-make docker-dev-down # Stop development services
+make setup-dev      # Start development environment with hot reload
+make status-dev     # Check development cluster status
+make logs-dev       # View development logs
+make stop-dev       # Stop and clean development environment
 ```
 
-### Setup & Development
+### Production Workflow
 ```bash
-make setup          # Initial project setup
-make full-setup     # Start complete observability stack
-make full-stop      # Stop everything
-make clean          # Clean up temporary files
+make setup-prod     # Start complete production stack
+make status-prod    # Check production cluster status
+make logs-prod      # View production logs
+make stop-prod      # Stop and clean production environment
 ```
 
-### Running Services
+### Local Development
 ```bash
-make docker-up      # Start all services with Docker (production-like)
-make docker-down    # Stop Docker services
+make run            # Run FastAPI locally (installs dependencies)
 make run-dev        # Run FastAPI locally with hot reload
+make run-jaeger     # Start only Jaeger for local development
+```
+
+### Monitoring & Health
+```bash
 make status         # Basic service status
-make status-dev     # Development cluster status with health checks
-make status-prod    # Production cluster status with health checks
-make status-all     # Comprehensive status for all environments
 make health         # Health check all services
+make shell-app      # Open shell in main application container
 ```
 
 ### Testing & Quality
@@ -161,12 +180,11 @@ make format         # Format code
 make traffic-demo   # Generate demo traffic
 make load-test      # Run load test (10 users, 50 requests each)
 make load-test-heavy # Heavy load test (25 users, 100 requests each)
-make demo           # Complete demo sequence
 ```
 
 ## Service URLs
 
-After running `make full-setup`, access:
+After running `make setup-prod` or `make setup-dev`, access:
 
 | Service | URL | Description |
 |---------|-----|-------------|
@@ -189,12 +207,13 @@ make test-coverage  # Tests + coverage report (77% coverage)
 ```bash
 make traffic-demo   # Demo scenarios
 make load-test      # Performance testing
+make load-test-heavy # Heavy load testing
 ```
 
 ## Viewing Results
 
 ### Jaeger Tracing (http://localhost:16686)
-After running `make demo`:
+After running `make setup-prod` or `make setup-dev`:
 1. Open Jaeger UI
 2. Select service: `fastapi-jaeger-demo`
 3. Click "Find Traces" to see all distributed traces
@@ -227,7 +246,6 @@ method: "POST" AND error: true
 ```bash
 make status-dev     # Development environment status
 make status-prod    # Production environment status  
-make status-all     # Comprehensive status (auto-detects active environments)
 ```
 
 ### Status Features
@@ -256,13 +274,12 @@ fastapi-main-dev    0.33%     69.33MiB / 15.38GiB
 
 ### Docker Development (Recommended)
 ```bash
-make dev-setup      # Build development images
-make docker-dev-up  # Start with volume mounts
+make setup-dev      # Start development with hot reload
 make status-dev     # Check cluster health
 # Edit code - automatic hot reload in containers
 make traffic        # Test with traffic
-make docker-dev-logs # View logs
-make docker-dev-down # Stop when done
+make logs-dev       # View logs
+make stop-dev       # Stop and clean when done
 ```
 
 ### Local Development
@@ -276,20 +293,18 @@ make format         # Format code
 
 ### Full Testing Cycle
 ```bash
-make full-setup     # Start all services
-make demo-dev       # Development demo with hot reload
-make demo           # Production demo
+make setup-prod     # Start production services
+make setup-dev      # Development demo with hot reload
 make test-coverage  # Comprehensive testing
-make full-stop      # Clean shutdown
+make stop-prod      # Clean shutdown
 ```
 
 ### Debug Issues
 ```bash
 make status         # Check service status
 make health         # Health check endpoints
-make docker-dev-logs # View development logs
-make logs-app       # View application logs
-make logs-jaeger    # View Jaeger logs
+make logs-dev       # View development logs
+make logs-prod      # View production logs
 ```
 
 ## Project Structure
@@ -315,12 +330,12 @@ jaeger-tracing/
 
 ### Demo for Presentation
 ```bash
-make demo               # Complete automated demo
+make traffic-demo       # Complete automated demo
 ```
 
 ### Development
 ```bash
-make dev-setup         # Quick dev environment
+make setup-dev         # Quick dev environment with hot reload
 make run-dev           # Hot reload development
 ```
 
@@ -332,7 +347,7 @@ make load-test         # Performance testing
 
 ### Production Simulation
 ```bash
-make full-setup        # Complete production-like stack
+make setup-prod        # Complete production-like stack
 make traffic-stress    # Stress testing
 ```
 
@@ -382,7 +397,7 @@ All services are pre-configured and work out of the box! Key configurations:
 
 ## API Endpoints
 
-After running `make full-setup`, test these endpoints:
+After running `make setup-prod`, test these endpoints:
 
 | Endpoint | Method | Description | Test Command |
 |----------|--------|-------------|--------------|
@@ -417,8 +432,8 @@ Every request is automatically traced with:
 ```bash
 make status         # Check all services
 make health         # Health check endpoints
-make logs-app       # View application logs
-make logs-jaeger    # View Jaeger logs
+make logs-prod      # View production logs
+make logs-dev       # View development logs
 ```
 
 ### Common Issues & Solutions
@@ -428,7 +443,7 @@ make logs-jaeger    # View Jaeger logs
 | Services not starting | `make status` | Check Docker is running, ports available |
 | No traces in Jaeger | `make health` | Verify all services are healthy |
 | Tests failing | `make test` | Check error output, run `make format` |
-| Port conflicts | `make full-stop` | Stop all services, then restart |
+| Port conflicts | `make stop-prod` | Stop all services, then restart |
 
 ### Manual Health Checks
 ```bash
@@ -442,9 +457,8 @@ curl http://localhost:9200/_cluster/health # Elasticsearch
 
 ### Complete Stack Deployment
 ```bash
-make docker-build   # Build all images
-make full-setup     # Deploy complete stack
-make demo           # Validate with demo data
+make setup-prod     # Deploy complete stack
+make traffic-demo   # Validate with demo data
 ```
 
 ### Services Included
@@ -478,9 +492,9 @@ make demo           # Validate with demo data
 - Load testing capabilities
 
 **Developer Experience**  
-- **Single-command setup**: `make full-setup`
-- **Single-command demo**: `make demo`
-- **Single-command cleanup**: `make full-stop`
+- **Single-command setup**: `make setup-prod`
+- **Single-command demo**: `make traffic-demo`
+- **Single-command cleanup**: `make stop-prod`
 - Comprehensive Makefile for all operations
 - Clear troubleshooting with `make help`
 
@@ -488,4 +502,4 @@ This project demonstrates a complete, production-ready observability stack that 
 
 ---
 
-**TL;DR**: Run `make setup && make full-setup && make demo` for a complete working observability stack in 3 commands!
+**TL;DR**: Run `make setup-prod && make traffic-demo` for a complete working observability stack in 2 commands!

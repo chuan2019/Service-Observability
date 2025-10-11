@@ -1,5 +1,5 @@
 # FastAPI Jaeger Tracing Demo - Makefile
-.PHONY: help install install-dev run run-dev docker-build docker-up docker-down docker-logs clean test lint format traffic demo load-test full-stop status-dev status-prod status-all test-api api-docs
+.PHONY: help run run-dev docker-build docker-down docker-logs clean test lint format traffic demo load-test full-stop status-dev status-prod status-all test-api api-docs
 
 # Default target
 help: ## Show this help message
@@ -9,32 +9,16 @@ help: ## Show this help message
 	@echo "Available commands:"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-# Development Setup
-install: ## Install project dependencies using uv (for local development)
+# Local Development (only used for local application development)
+run: ## Run FastAPI application locally
 	@echo "Installing dependencies with uv..."
 	uv sync
-
-install-dev: ## Install development dependencies (for local development)
-	@echo "Installing development dependencies..."
-	uv sync --dev
-
-setup: install ## Setup the project environment for local development
-	@echo "Project setup complete!"
-	@echo "   Run 'make run-dev' for local development"
-	@echo "   Run 'make docker-dev-up' for containerized development"
-	@echo "   Run 'make docker-up' for production-like setup"
-
-dev-setup: docker-dev-build ## Quick development setup using Docker with hot reload
-	@echo "Development environment ready!"
-	@echo "   Run 'make docker-dev-up' to start all services"
-	@echo "   Source code changes will trigger automatic reload"
-
-# Local Development
-run: ## Run FastAPI application locally
 	@echo "Starting FastAPI application..."
 	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 run-dev: ## Run FastAPI application in development mode with hot reload
+	@echo "Installing development dependencies..."
+	uv sync --dev
 	@echo "Starting FastAPI application in development mode..."
 	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
@@ -42,73 +26,6 @@ run-jaeger: ## Start only Jaeger using Docker Compose
 	@echo "Starting Jaeger..."
 	docker-compose -f docker-compose.dev.yml up -d jaeger
 	@echo "Jaeger UI available at: http://localhost:16686"
-
-# Docker Development Operations
-docker-dev-build: ## Build Docker development images
-	@echo "Building Docker development images..."
-	docker-compose -f docker-compose.dev.yml build
-
-docker-dev-up: ## Start all services in development mode with local source mounting
-	@echo "Starting all services in development mode..."
-	docker-compose -f docker-compose.dev.yml up -d
-	@echo "Development services started:"
-	@echo "   FastAPI Main:     http://localhost:8000 (with hot reload)"
-	@echo "   User Service:     http://localhost:8001 (with hot reload)"
-	@echo "   Order Service:    http://localhost:8002 (with hot reload)"
-	@echo "   Payment Service:  http://localhost:8003 (with hot reload)"
-	@echo "   Jaeger UI:        http://localhost:16686"
-	@echo "   Redis:            localhost:6379"
-	@echo "   PostgreSQL:       localhost:5432"
-
-docker-dev-down: ## Stop development services
-	@echo "Stopping development services..."
-	docker-compose -f docker-compose.dev.yml down
-
-docker-dev-logs: ## Show development logs
-	@echo "Showing development logs..."
-	docker-compose -f docker-compose.dev.yml logs -f
-
-docker-dev-restart: ## Restart development services
-	@echo "Restarting development services..."
-	docker-compose -f docker-compose.dev.yml restart
-
-# Docker Production Operations
-docker-build: ## Build Docker production images
-	@echo "Building Docker production images..."
-	docker-compose build
-
-docker-up: ## Start all services with Docker Compose
-	@echo "Starting all services with Docker Compose..."
-	docker-compose up -d
-	@echo "Services started:"
-	@echo "   FastAPI Main:     http://localhost:8000"
-	@echo "   User Service:     http://localhost:8001" 
-	@echo "   Order Service:    http://localhost:8002"
-	@echo "   Payment Service:  http://localhost:8003"
-	@echo "   Jaeger UI:        http://localhost:16686"
-
-docker-up-dev: ## Start development services with Docker Compose
-	@echo "Starting development services..."
-	docker-compose -f docker-compose.dev.yml up -d
-	@echo "Development services started:"
-	@echo "   Jaeger UI:        http://localhost:16686"
-	@echo "   Redis:            localhost:6379"
-	@echo "   PostgreSQL:       localhost:5432"
-
-docker-down: ## Stop all Docker services
-	@echo "Stopping Docker services..."
-	docker-compose down
-	docker-compose -f docker-compose.dev.yml down
-
-docker-logs: ## Show Docker logs
-	@echo "Docker logs:"
-	docker-compose logs -f
-
-docker-clean: ## Clean up Docker resources
-	@echo "Cleaning up Docker resources..."
-	docker-compose down -v --remove-orphans
-	docker-compose -f docker-compose.dev.yml down -v --remove-orphans
-	docker system prune -f
 
 # Code Quality
 lint: ## Run linting with ruff
@@ -127,6 +44,8 @@ type-check: ## Run type checking with mypy
 test: ## Run tests
 	@echo "Running tests..."
 	uv run pytest tests/ -v
+	@echo "Testing all API endpoints..."
+	./scripts/test_api_endpoints.sh
 
 test-coverage: ## Run tests with coverage
 	@echo "Running tests with coverage..."
@@ -154,10 +73,6 @@ load-test-heavy: ## Run heavy load test
 	uv run python scripts/load_test.py --users 25 --requests 100 --ramp-up 15
 
 # API Testing
-test-api: ## Run comprehensive API endpoint tests
-	@echo "Testing all API endpoints..."
-	./scripts/test_api_endpoints.sh
-
 api-docs: ## Open API documentation in browser
 	@echo "API Documentation available at:"
 	@echo "   Swagger UI:  http://localhost:8000/docs"
@@ -166,10 +81,10 @@ api-docs: ## Open API documentation in browser
 	@echo "   Reference:   ./API_REFERENCE.md"
 
 # Demo and Presentation
-demo: ## Run full demo sequence (production-like)
+setup-prod: ## Run full demo sequence (production-like)
 	@echo "Starting demo sequence..."
 	@echo "1. Starting services..."
-	make docker-up
+	docker-compose up -d --build
 	@echo "2. Waiting for services to be ready..."
 	sleep 10
 	@echo "3. Running demo traffic..."
@@ -178,10 +93,10 @@ demo: ## Run full demo sequence (production-like)
 	make load-test
 	@echo "Demo complete! Check Jaeger UI at http://localhost:16686"
 
-demo-dev: ## Run development demo with hot reload
+setup-dev: ## Run development demo with hot reload
 	@echo "Starting development demo sequence..."
 	@echo "1. Starting development services with hot reload..."
-	make docker-dev-up
+	docker-compose -f docker-compose.dev.yml up -d --build
 	@echo "2. Waiting for services to be ready..."
 	sleep 15
 	@echo "3. Running demo traffic..."
@@ -189,11 +104,17 @@ demo-dev: ## Run development demo with hot reload
 	@echo "Development demo complete! Check Jaeger UI at http://localhost:16686"
 	@echo "Edit source files to see hot reload in action!"
 
-demo-clean: ## Clean demo and restart
-	@echo "Cleaning demo environment..."
-	make docker-down
-	make docker-clean
-	make demo
+stop-prod: ## stop and clean production demo 
+	@echo "Stopping and Cleaning production environment..."
+	docker-compose down
+	docker-compose down -v --remove-orphans
+	docker system prune -f
+
+stop-dev: ## stop and clean development demo
+	@echo "Stopping and Cleaning development environment..."
+	docker-compose -f docker-compose.dev.yml down
+	docker-compose -f docker-compose.dev.yml down -v --remove-orphans
+	docker system prune -f
 
 # Health Checks
 health: ## Check service health
@@ -245,25 +166,6 @@ status-prod: ## Show production cluster status with health checks
 	@echo "Resource Usage:"
 	@docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" $$(docker-compose ps -q) 2>/dev/null || echo "No containers running"
 
-status-all: ## Show comprehensive status for all environments
-	@echo "Comprehensive Cluster Status:"
-	@echo "=============================="
-	@dev_containers=$$(docker-compose -f docker-compose.dev.yml ps -q 2>/dev/null | wc -l); \
-	prod_containers=$$(docker-compose ps -q 2>/dev/null | wc -l); \
-	if [ $$dev_containers -gt 0 ]; then \
-		echo "Development Environment:"; \
-		make status-dev; \
-		echo ""; \
-	fi; \
-	if [ $$prod_containers -gt 0 ]; then \
-		echo "Production Environment:"; \
-		make status-prod; \
-	fi; \
-	if [ $$dev_containers -eq 0 ] && [ $$prod_containers -eq 0 ]; then \
-		echo "No active environments found."; \
-		echo "Run 'make docker-dev-up' for development or 'make docker-up' for production."; \
-	fi
-
 # Cleanup
 clean: ## Clean up temporary files and caches
 	@echo "Cleaning up..."
@@ -274,36 +176,14 @@ clean: ## Clean up temporary files and caches
 	find . -type d -name "htmlcov" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name ".coverage" -delete 2>/dev/null || true
 
-# Quick Development Workflows
-# Note: dev-setup is defined earlier in the file for Docker development
-
-full-setup: ## Full setup with all services
-	make install-dev
-	make docker-up
-	@echo "Full environment ready!"
-
-full-stop: ## Stop all services and processes completely
-	@echo "Stopping all services and processes..."
-	@echo "1. Stopping Docker services..."
-	-docker-compose down 2>/dev/null
-	-docker-compose -f docker-compose.dev.yml down 2>/dev/null
-	@echo "2. Killing local FastAPI processes..."
-	-pkill -f "uvicorn.*app.main:app" 2>/dev/null
-	-pkill -f "python.*app/main.py" 2>/dev/null
-	-pkill -f "python.*-m.*uvicorn.*app.main:app" 2>/dev/null
-	@echo "3. Stopping traffic generation processes..."
-	-pkill -f "generate_traffic.py" 2>/dev/null
-	-pkill -f "load_test.py" 2>/dev/null
-	@echo "4. Cleaning up any remaining processes..."
-	-pkill -f "fastapi-jaeger-tracing" 2>/dev/null
-	@echo "All services stopped!"
-
 # Monitoring and Debugging
-logs-app: ## Show application logs
-	docker-compose logs -f fastapi-main
+logs-dev: ## Show development logs
+	@echo "Showing development logs..."
+	docker-compose -f docker-compose.dev.yml logs -f
 
-logs-jaeger: ## Show Jaeger logs  
-	docker-compose logs -f jaeger
+logs-prod: ## Show production logs
+	@echo "Showing production logs..."
+	docker-compose logs -f
 
 shell-app: ## Open shell in main application container
 	docker-compose exec fastapi-main /bin/bash
