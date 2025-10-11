@@ -142,8 +142,6 @@ status-dev: ## Show development cluster status with health checks
 	@echo "Order Service:    $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8002/health 2>/dev/null || echo "DOWN")"
 	@echo "Payment Service:  $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003/health 2>/dev/null || echo "DOWN")"
 	@echo "Jaeger UI:        $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:16686/ 2>/dev/null || echo "DOWN")"
-	@echo "Redis:            $$(docker exec redis-dev redis-cli ping 2>/dev/null || echo "DOWN")"
-	@echo "PostgreSQL:       $$(docker exec postgres-dev pg_isready -U demo_user -d demo_db 2>/dev/null && echo "200" || echo "DOWN")"
 	@echo ""
 	@echo "Resource Usage:"
 	@docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" $$(docker-compose -f docker-compose.dev.yml ps -q) 2>/dev/null || echo "No containers running"
