@@ -1,4 +1,4 @@
-# Development version with hot reloading
+# Development version with hot reloading and local source mounting
 services:
   # Jaeger
   jaeger:
@@ -8,6 +8,8 @@ services:
       - "16686:16686"  # Jaeger UI
       - "14268:14268"  # Jaeger collector HTTP
       - "14250:14250"  # Jaeger collector gRPC
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
       - "6831:6831/udp"  # Jaeger agent UDP
       - "6832:6832/udp"  # Jaeger agent UDP
     environment:
@@ -17,6 +19,126 @@ services:
       - tracing-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:16686/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # FastAPI Application - Main Service (Development with volume mount)
+  fastapi-main:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: fastapi-main-dev
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_NAME=fastapi-main
+      - JAEGER_HOST=jaeger
+      - JAEGER_PORT=4318
+      - ENVIRONMENT=development
+      - PYTHONPATH=/app
+    volumes:
+      - ./app:/app/app:ro
+      - ./config:/app/config:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # FastAPI Application - User Service (Development)
+  fastapi-user-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: fastapi-user-service-dev
+    ports:
+      - "8001:8000"
+    environment:
+      - SERVICE_NAME=user-service
+      - JAEGER_HOST=jaeger
+      - JAEGER_PORT=4318
+      - ENVIRONMENT=development
+      - PYTHONPATH=/app
+    volumes:
+      - ./app:/app/app:ro
+      - ./config:/app/config:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # FastAPI Application - Order Service (Development)
+  fastapi-order-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: fastapi-order-service-dev
+    ports:
+      - "8002:8000"
+    environment:
+      - SERVICE_NAME=order-service
+      - JAEGER_HOST=jaeger
+      - JAEGER_PORT=4318
+      - ENVIRONMENT=development
+      - PYTHONPATH=/app
+    volumes:
+      - ./app:/app/app:ro
+      - ./config:/app/config:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # FastAPI Application - Payment Service (Development)
+  fastapi-payment-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: fastapi-payment-service-dev
+    ports:
+      - "8003:8000"
+    environment:
+      - SERVICE_NAME=payment-service
+      - JAEGER_HOST=jaeger
+      - JAEGER_PORT=4318
+      - ENVIRONMENT=development
+      - PYTHONPATH=/app
+    volumes:
+      - ./app:/app/app:ro
+      - ./config:/app/config:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    networks:
+      - tracing-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
