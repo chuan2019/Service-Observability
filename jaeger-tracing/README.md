@@ -51,6 +51,24 @@ make demo
 
 That's it! Your complete observability stack is running with sample data.
 
+## Docker Development (Hot Reload)
+
+For active development with automatic code reloading:
+
+```bash
+make dev-setup          # Build development images  
+make docker-dev-up      # Start containers with volume mounts
+# Edit any source file - changes trigger hot reload!
+./scripts/hot_reload_demo.sh  # See hot reload in action
+```
+
+**Services available:**
+- FastAPI (Main): http://localhost:8000 
+- User Service: http://localhost:8001
+- Order Service: http://localhost:8002  
+- Payment Service: http://localhost:8003
+- Jaeger UI: http://localhost:16686
+
 ## All Available Commands
 
 View all available commands:
@@ -102,6 +120,14 @@ Available commands:
 
 ## Essential Commands
 
+### Docker Development (Recommended - Hot Reload)
+```bash
+make dev-setup      # Build development images
+make docker-dev-up  # Start with volume mounts for hot reload
+make docker-dev-logs # View development logs
+make docker-dev-down # Stop development services
+```
+
 ### Setup & Development
 ```bash
 make setup          # Initial project setup
@@ -112,10 +138,13 @@ make clean          # Clean up temporary files
 
 ### Running Services
 ```bash
-make docker-up      # Start all services with Docker
+make docker-up      # Start all services with Docker (production-like)
 make docker-down    # Stop Docker services
 make run-dev        # Run FastAPI locally with hot reload
-make status         # Check service status
+make status         # Basic service status
+make status-dev     # Development cluster status with health checks
+make status-prod    # Production cluster status with health checks
+make status-all     # Comprehensive status for all environments
 make health         # Health check all services
 ```
 
@@ -192,12 +221,54 @@ duration_ms: >1000
 method: "POST" AND error: true
 ```
 
+## Cluster Status Monitoring
+
+### Quick Status Checks
+```bash
+make status-dev     # Development environment status
+make status-prod    # Production environment status  
+make status-all     # Comprehensive status (auto-detects active environments)
+```
+
+### Status Features
+- **Container Status**: Running state, uptime, port mappings
+- **Health Checks**: HTTP health endpoints for all services
+- **Resource Usage**: CPU and memory consumption per container
+- **Service Discovery**: Automatic detection of active environments
+
+### Sample Output
+```
+Development Cluster Status:
+=============================
+Container Status:
+fastapi-main-dev          Up 9 minutes (healthy)    0.0.0.0:8000->8000/tcp
+
+Health Checks:
+FastAPI Main:     200
+Jaeger UI:        200
+Redis:            PONG
+
+Resource Usage:
+fastapi-main-dev    0.33%     69.33MiB / 15.38GiB
+```
+
 ## Development Workflows
 
-### Quick Development Cycle
+### Docker Development (Recommended)
+```bash
+make dev-setup      # Build development images
+make docker-dev-up  # Start with volume mounts
+make status-dev     # Check cluster health
+# Edit code - automatic hot reload in containers
+make traffic        # Test with traffic
+make docker-dev-logs # View logs
+make docker-dev-down # Stop when done
+```
+
+### Local Development
 ```bash
 make setup          # One-time setup
-make run-dev        # Start with hot reload
+make run-dev        # Start with hot reload (local)
 # Make code changes
 make test           # Run tests
 make format         # Format code
@@ -206,7 +277,8 @@ make format         # Format code
 ### Full Testing Cycle
 ```bash
 make full-setup     # Start all services
-make demo           # Generate sample data
+make demo-dev       # Development demo with hot reload
+make demo           # Production demo
 make test-coverage  # Comprehensive testing
 make full-stop      # Clean shutdown
 ```
@@ -215,6 +287,7 @@ make full-stop      # Clean shutdown
 ```bash
 make status         # Check service status
 make health         # Health check endpoints
+make docker-dev-logs # View development logs
 make logs-app       # View application logs
 make logs-jaeger    # View Jaeger logs
 ```
@@ -262,6 +335,41 @@ make load-test         # Performance testing
 make full-setup        # Complete production-like stack
 make traffic-stress    # Stress testing
 ```
+
+## Docker Development Setup
+
+The project supports both local and containerized development:
+
+### Development Mode (docker-compose.dev.yml)
+- **Volume Mounting**: Local source code is mounted into containers
+- **Hot Reload**: Changes trigger automatic application restart
+- **Fast Iteration**: No need to rebuild images for code changes
+- **Lightweight**: Only essential services (Jaeger, Redis, PostgreSQL)
+
+### Production Mode (docker-compose.yml)
+- **Full Stack**: Complete observability infrastructure
+- **Elasticsearch Backend**: For production-grade trace storage
+- **Kibana Integration**: Advanced analytics and dashboards
+- **Multi-Service**: Simulates microservice architecture
+
+## Docker Development Setup
+
+The project supports two development modes:
+
+### Development Mode (Recommended)
+- **File**: `docker-compose.dev.yml`
+- **Volume Mounting**: Local source code mounted into containers
+- **Hot Reload**: Changes trigger automatic application restart
+- **Fast Iteration**: No image rebuilds needed for code changes
+- **Services**: Jaeger, Redis, PostgreSQL + 4 FastAPI services
+- **Usage**: `make docker-dev-up`
+
+### Production Mode
+- **File**: `docker-compose.yml`
+- **Full Stack**: Complete observability infrastructure
+- **Elasticsearch Backend**: Production-grade trace storage
+- **Kibana Integration**: Advanced analytics and dashboards
+- **Usage**: `make docker-up`
 
 ## Configuration
 

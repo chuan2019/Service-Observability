@@ -1,5 +1,5 @@
 # FastAPI Jaeger Tracing Demo - Makefile
-.PHONY: help install install-dev run run-dev docker-build docker-up docker-down docker-logs clean test lint format traffic demo load-test full-stop
+.PHONY: help install install-dev run run-dev docker-build docker-up docker-down docker-logs clean test lint format traffic demo load-test full-stop status-dev status-prod status-all test-api api-docs
 
 # Default target
 help: ## Show this help message
@@ -10,18 +10,24 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # Development Setup
-install: ## Install project dependencies using uv
+install: ## Install project dependencies using uv (for local development)
 	@echo "Installing dependencies with uv..."
 	uv sync
 
-install-dev: ## Install development dependencies
+install-dev: ## Install development dependencies (for local development)
 	@echo "Installing development dependencies..."
 	uv sync --dev
 
-setup: install ## Setup the project environment
+setup: install ## Setup the project environment for local development
 	@echo "Project setup complete!"
-	@echo "   Run 'make run-dev' to start development"
-	@echo "   Run 'make docker-up' to start with Docker"
+	@echo "   Run 'make run-dev' for local development"
+	@echo "   Run 'make docker-dev-up' for containerized development"
+	@echo "   Run 'make docker-up' for production-like setup"
+
+dev-setup: docker-dev-build ## Quick development setup using Docker with hot reload
+	@echo "Development environment ready!"
+	@echo "   Run 'make docker-dev-up' to start all services"
+	@echo "   Source code changes will trigger automatic reload"
 
 # Local Development
 run: ## Run FastAPI application locally
@@ -37,9 +43,38 @@ run-jaeger: ## Start only Jaeger using Docker Compose
 	docker-compose -f docker-compose.dev.yml up -d jaeger
 	@echo "Jaeger UI available at: http://localhost:16686"
 
-# Docker Operations
-docker-build: ## Build Docker images
-	@echo "Building Docker images..."
+# Docker Development Operations
+docker-dev-build: ## Build Docker development images
+	@echo "Building Docker development images..."
+	docker-compose -f docker-compose.dev.yml build
+
+docker-dev-up: ## Start all services in development mode with local source mounting
+	@echo "Starting all services in development mode..."
+	docker-compose -f docker-compose.dev.yml up -d
+	@echo "Development services started:"
+	@echo "   FastAPI Main:     http://localhost:8000 (with hot reload)"
+	@echo "   User Service:     http://localhost:8001 (with hot reload)"
+	@echo "   Order Service:    http://localhost:8002 (with hot reload)"
+	@echo "   Payment Service:  http://localhost:8003 (with hot reload)"
+	@echo "   Jaeger UI:        http://localhost:16686"
+	@echo "   Redis:            localhost:6379"
+	@echo "   PostgreSQL:       localhost:5432"
+
+docker-dev-down: ## Stop development services
+	@echo "Stopping development services..."
+	docker-compose -f docker-compose.dev.yml down
+
+docker-dev-logs: ## Show development logs
+	@echo "Showing development logs..."
+	docker-compose -f docker-compose.dev.yml logs -f
+
+docker-dev-restart: ## Restart development services
+	@echo "Restarting development services..."
+	docker-compose -f docker-compose.dev.yml restart
+
+# Docker Production Operations
+docker-build: ## Build Docker production images
+	@echo "Building Docker production images..."
 	docker-compose build
 
 docker-up: ## Start all services with Docker Compose
@@ -118,8 +153,20 @@ load-test-heavy: ## Run heavy load test
 	@echo "Running heavy load test..."
 	uv run python scripts/load_test.py --users 25 --requests 100 --ramp-up 15
 
+# API Testing
+test-api: ## Run comprehensive API endpoint tests
+	@echo "Testing all API endpoints..."
+	./scripts/test_api_endpoints.sh
+
+api-docs: ## Open API documentation in browser
+	@echo "API Documentation available at:"
+	@echo "   Swagger UI:  http://localhost:8000/docs"
+	@echo "   ReDoc:       http://localhost:8000/redoc"
+	@echo "   OpenAPI:     http://localhost:8000/openapi.json"
+	@echo "   Reference:   ./API_REFERENCE.md"
+
 # Demo and Presentation
-demo: ## Run full demo sequence
+demo: ## Run full demo sequence (production-like)
 	@echo "Starting demo sequence..."
 	@echo "1. Starting services..."
 	make docker-up
@@ -130,6 +177,17 @@ demo: ## Run full demo sequence
 	@echo "4. Running load test..."
 	make load-test
 	@echo "Demo complete! Check Jaeger UI at http://localhost:16686"
+
+demo-dev: ## Run development demo with hot reload
+	@echo "Starting development demo sequence..."
+	@echo "1. Starting development services with hot reload..."
+	make docker-dev-up
+	@echo "2. Waiting for services to be ready..."
+	sleep 15
+	@echo "3. Running demo traffic..."
+	make traffic-demo
+	@echo "Development demo complete! Check Jaeger UI at http://localhost:16686"
+	@echo "Edit source files to see hot reload in action!"
 
 demo-clean: ## Clean demo and restart
 	@echo "Cleaning demo environment..."
@@ -151,6 +209,61 @@ status: ## Show service status
 	@echo "=================="
 	@docker-compose ps
 
+status-dev: ## Show development cluster status with health checks
+	@echo "Development Cluster Status:"
+	@echo "============================="
+	@echo "Container Status:"
+	@docker-compose -f docker-compose.dev.yml ps --format "table {{.Name}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+	@echo ""
+	@echo "Health Checks:"
+	@echo "FastAPI Main:     $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health 2>/dev/null || echo "DOWN")"
+	@echo "User Service:     $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/health 2>/dev/null || echo "DOWN")"
+	@echo "Order Service:    $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8002/health 2>/dev/null || echo "DOWN")"
+	@echo "Payment Service:  $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003/health 2>/dev/null || echo "DOWN")"
+	@echo "Jaeger UI:        $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:16686/ 2>/dev/null || echo "DOWN")"
+	@echo "Redis:            $$(docker exec redis-dev redis-cli ping 2>/dev/null || echo "DOWN")"
+	@echo "PostgreSQL:       $$(docker exec postgres-dev pg_isready -U demo_user -d demo_db 2>/dev/null && echo "200" || echo "DOWN")"
+	@echo ""
+	@echo "Resource Usage:"
+	@docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" $$(docker-compose -f docker-compose.dev.yml ps -q) 2>/dev/null || echo "No containers running"
+
+status-prod: ## Show production cluster status with health checks
+	@echo "Production Cluster Status:"
+	@echo "==========================="
+	@echo "Container Status:"
+	@docker-compose ps --format "table {{.Name}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+	@echo ""
+	@echo "Health Checks:"
+	@echo "FastAPI Main:     $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health 2>/dev/null || echo "DOWN")"
+	@echo "User Service:     $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/health 2>/dev/null || echo "DOWN")"
+	@echo "Order Service:    $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8002/health 2>/dev/null || echo "DOWN")"
+	@echo "Payment Service:  $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8003/health 2>/dev/null || echo "DOWN")"
+	@echo "Jaeger UI:        $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:16686/ 2>/dev/null || echo "DOWN")"
+	@echo "Kibana:           $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5601/api/status 2>/dev/null || echo "DOWN")"
+	@echo "Elasticsearch:    $$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9200/_cluster/health 2>/dev/null || echo "DOWN")"
+	@echo ""
+	@echo "Resource Usage:"
+	@docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" $$(docker-compose ps -q) 2>/dev/null || echo "No containers running"
+
+status-all: ## Show comprehensive status for all environments
+	@echo "Comprehensive Cluster Status:"
+	@echo "=============================="
+	@dev_containers=$$(docker-compose -f docker-compose.dev.yml ps -q 2>/dev/null | wc -l); \
+	prod_containers=$$(docker-compose ps -q 2>/dev/null | wc -l); \
+	if [ $$dev_containers -gt 0 ]; then \
+		echo "Development Environment:"; \
+		make status-dev; \
+		echo ""; \
+	fi; \
+	if [ $$prod_containers -gt 0 ]; then \
+		echo "Production Environment:"; \
+		make status-prod; \
+	fi; \
+	if [ $$dev_containers -eq 0 ] && [ $$prod_containers -eq 0 ]; then \
+		echo "No active environments found."; \
+		echo "Run 'make docker-dev-up' for development or 'make docker-up' for production."; \
+	fi
+
 # Cleanup
 clean: ## Clean up temporary files and caches
 	@echo "Cleaning up..."
@@ -162,11 +275,7 @@ clean: ## Clean up temporary files and caches
 	find . -type f -name ".coverage" -delete 2>/dev/null || true
 
 # Quick Development Workflows
-dev-setup: ## Quick development setup
-	make install-dev
-	make run-jaeger
-	@echo "Development environment ready!"
-	@echo "   Run 'make run-dev' to start the application"
+# Note: dev-setup is defined earlier in the file for Docker development
 
 full-setup: ## Full setup with all services
 	make install-dev
