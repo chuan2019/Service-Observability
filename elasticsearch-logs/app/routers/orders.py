@@ -102,7 +102,7 @@ async def get_orders(
             "limit": limit,
             "status_filter": status,
             "user_id_filter": user_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -124,7 +124,7 @@ async def get_orders(
             "count": len(result),
             "total_available": len(orders),
             "filters_applied": {"status": status, "user_id": user_id},
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -139,7 +139,7 @@ async def get_order(order_id: int):
         extra={
             "event": "get_order",
             "order_id": order_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -151,7 +151,7 @@ async def get_order(order_id: int):
             extra={
                 "event": "get_order_not_found",
                 "order_id": order_id,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
         raise HTTPException(status_code=404, detail="Order not found")
@@ -163,7 +163,7 @@ async def get_order(order_id: int):
             "order_id": order_id,
             "order_status": order.status,
             "order_total": order.price * order.quantity,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -182,7 +182,7 @@ async def create_order(order_data: OrderCreate):
             "quantity": order_data.quantity,
             "price": order_data.price,
             "total": order_data.price * order_data.quantity,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -211,7 +211,7 @@ async def create_order(order_data: OrderCreate):
             "user_id": new_order.user_id,
             "product_name": new_order.product_name,
             "total_value": new_order.price * new_order.quantity,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -227,9 +227,9 @@ async def update_order(order_id: int, order_data: OrderUpdate):
             "event": "update_order",
             "order_id": order_id,
             "update_fields": [
-                k for k, v in order_data.dict(exclude_unset=True).items()
+                k for k, v in order_data.model_dump(exclude_unset=True).items()
             ],
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -243,14 +243,14 @@ async def update_order(order_id: int, order_data: OrderUpdate):
             extra={
                 "event": "update_order_not_found",
                 "order_id": order_id,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
         raise HTTPException(status_code=404, detail="Order not found")
 
     # Update order
     order = fake_orders_db[order_index]
-    update_data = order_data.dict(exclude_unset=True)
+    update_data = order_data.model_dump(exclude_unset=True)
 
     old_status = order.status
 
@@ -268,7 +268,7 @@ async def update_order(order_id: int, order_data: OrderUpdate):
                 "order_id": order_id,
                 "old_status": old_status,
                 "new_status": order.status,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
 
@@ -279,7 +279,7 @@ async def update_order(order_id: int, order_data: OrderUpdate):
             "order_id": order_id,
             "updated_fields": list(update_data.keys()),
             "current_status": order.status,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -294,7 +294,7 @@ async def cancel_order(order_id: int):
         extra={
             "event": "cancel_order",
             "order_id": order_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -308,7 +308,7 @@ async def cancel_order(order_id: int):
             extra={
                 "event": "cancel_order_not_found",
                 "order_id": order_id,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
         raise HTTPException(status_code=404, detail="Order not found")
@@ -323,7 +323,7 @@ async def cancel_order(order_id: int):
                 "event": "cancel_order_invalid_status",
                 "order_id": order_id,
                 "current_status": order.status,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
         raise HTTPException(
@@ -342,7 +342,7 @@ async def cancel_order(order_id: int):
             "old_status": old_status,
             "new_status": order.status,
             "refund_amount": order.price * order.quantity,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 

@@ -15,6 +15,7 @@ from httpx import AsyncClient
 
 from app.core.config import settings
 from app.main import app
+from app.routers.users import User
 
 
 class FastAPIServerManager:
@@ -184,16 +185,43 @@ def wait_for_services(fastapi_server):
     print("Service cleanup complete")
 
 
+@pytest.fixture(autouse=True)
+def reset_database():
+    '''Reset the fake database to initial state before each test.'''
+    from app.routers import users
+
+    # Reset to initial state
+    users.fake_users_db.clear()
+    users.fake_users_db.extend([
+        User(id=1, name='John Doe', email='john@example.com'),
+        User(id=2, name='Jane Smith', email='jane@example.com'),
+        User(id=3, name='Bob Johnson', email='bob@example.com', is_active=False),
+    ])
+
+    # Also reset orders database if it exists
+    try:
+        from app.routers import orders
+        from datetime import datetime
+        now = datetime.utcnow()
+        orders.fake_orders_db.clear()
+        orders.fake_orders_db.extend([
+            orders.Order(id=1, user_id=1, product_name='Laptop', quantity=1, price=999.99, status='pending', created_at=now, updated_at=now),
+            orders.Order(id=2, user_id=1, product_name='Mouse', quantity=2, price=25.50, status='pending', created_at=now, updated_at=now),
+            orders.Order(id=3, user_id=2, product_name='Keyboard', quantity=1, price=75.00, status='delivered', created_at=now, updated_at=now),
+        ])
+    except (ImportError, AttributeError):
+        pass  # Orders module might not have fake_orders_db
+
 @pytest.fixture
 def sample_user_data():
-    """Sample user data for testing."""
-    return {"name": "Test User", "email": "test@example.com"}
+    '''Sample user data for testing.'''
+    return {'name': 'Test User', 'email': 'testuser@example.com'}
 
 
 @pytest.fixture
 def sample_order_data():
-    """Sample order data for testing."""
-    return {"user_id": 1, "product_name": "Test Product", "quantity": 2, "price": 29.99}
+    '''Sample order data for testing.'''
+    return {'user_id': 1, 'product_name': 'Test Product', 'quantity': 2, 'price': 29.99}
 
 
 @pytest.fixture(autouse=True)
