@@ -4,11 +4,12 @@ import logging
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
+import json
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from app.core.config import settings
 from app.core.logging import setup_logging
@@ -170,6 +171,20 @@ async def root():
         "version": "1.0.0",
         "docs": "/docs",
     }
+
+
+@app.get("/api-spec", include_in_schema=False)
+def api_spec():
+    """API specification endpoint."""
+    logger.info(
+        "API specification accessed",
+        extra={"event": "api_spec_access", "timestamp": datetime.utcnow().isoformat()},
+    )
+    api_spec = json.dumps(app.openapi(), indent=4, ensure_ascii=False)
+    return Response(
+        content=api_spec,
+        media_type="application/json"
+    )
 
 
 if __name__ == "__main__":
