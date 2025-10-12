@@ -117,6 +117,50 @@ Open [http://localhost:5601](http://localhost:5601) and navigate to the **Discov
    make run
    ```
 
+## Docker Development Environment
+
+For a fully containerized development experience with live code reloading:
+
+### Quick Start with Docker
+
+```bash
+# Start the complete development environment
+./dev.sh start
+
+# Or manually with docker-compose
+docker-compose --profile dev up -d
+```
+
+### Docker Development Commands
+
+| Command | Description |
+|---------|-------------|
+| `./dev.sh start` | Start development environment (ES + Kibana + FastAPI) |
+| `./dev.sh stop` | Stop all services |
+| `./dev.sh restart` | Restart all services |
+| `./dev.sh logs` | Show logs for all services |
+| `./dev.sh logs-app` | Show FastAPI app logs only |
+| `./dev.sh build` | Build development Docker image |
+| `./dev.sh shell` | Open shell in FastAPI container |
+| `./dev.sh test` | Run tests in container |
+| `./dev.sh status` | Show status of all services |
+| `./dev.sh clean` | Clean up containers and volumes |
+
+### Docker Development Features
+
+- **Live Code Reloading**: Source code is mounted as volumes, changes reflect immediately
+- **Isolated Environment**: Consistent development environment across machines
+- **Full Stack**: Elasticsearch, Kibana, and FastAPI all running in containers
+- **Volume Mounts**: Local code changes are reflected in the container
+- **Separate Ports**: Development (8000) vs Production (8001) to avoid conflicts
+
+### Development URLs (Docker)
+
+- **FastAPI App**: [http://localhost:8000](http://localhost:8000)
+- **API Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Elasticsearch**: [http://localhost:9200](http://localhost:9200)
+- **Kibana**: [http://localhost:5601](http://localhost:5601)
+
 ## Development Commands
 
 | Command | Description |

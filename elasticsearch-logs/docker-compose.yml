@@ -40,6 +40,40 @@ services:
       timeout: 10s
       retries: 5
 
+  # Development FastAPI app container (with source code volumes)
+  fastapi-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    container_name: fastapi-dev
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - KIBANA_HOST=kibana
+      - KIBANA_PORT=5601
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - DEBUG=true
+    ports:
+      - "8000:8000"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - elastic-network
+    volumes:
+      - ./app:/app/app:ro  # Mount source code as read-only
+      - ./config:/app/config:ro  # Mount config as read-only
+      - ./tests:/app/tests:ro  # Mount tests as read-only
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./uv.lock:/app/uv.lock:ro
+      - ./.env:/app/.env:ro
+      - ./logs:/app/logs  # Logs directory (read-write)
+    restart: unless-stopped
+    profiles:
+      - dev  # Start with --profile dev
+    command: ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
   # Optional: FastAPI app container (for production deployment)
   fastapi-app:
     build:
@@ -54,7 +88,7 @@ services:
       - ENVIRONMENT=production
       - LOG_LEVEL=INFO
     ports:
-      - "8000:8000"
+      - "8001:8000"  # Use different port to avoid conflict with dev
     depends_on:
       elasticsearch:
         condition: service_healthy
