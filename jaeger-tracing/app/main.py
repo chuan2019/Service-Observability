@@ -5,6 +5,9 @@ from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
+
+import json
 
 from app.services import OrderService, PaymentService, UserService
 from config import get_tracer, instrument_fastapi, setup_tracing
@@ -189,6 +192,12 @@ async def demo_full_flow(user_id: int) -> Dict[str, Any]:
             span.set_attribute("error", str(e))
             span.set_attribute("flow_status", "failed")
             raise HTTPException(status_code=500, detail=f"Flow failed: {str(e)}")
+
+@app.get("/api-spec", include_in_schema=False)
+def openapi_pretty():
+    openapi_spec = app.openapi()
+    pretty_json = json.dumps(openapi_spec, indent=4, ensure_ascii=False)
+    return Response(content=pretty_json, media_type="application/json")
 
 
 if __name__ == "__main__":
