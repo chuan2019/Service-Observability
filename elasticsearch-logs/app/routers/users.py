@@ -56,7 +56,7 @@ async def get_users(
             "skip": skip,
             "limit": limit,
             "active_only": active_only,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -73,7 +73,7 @@ async def get_users(
             "event": "get_users_success",
             "count": len(result),
             "total_available": len(users),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -88,7 +88,7 @@ async def get_user(user_id: int):
         extra={
             "event": "get_user",
             "user_id": user_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -100,7 +100,7 @@ async def get_user(user_id: int):
             extra={
                 "event": "get_user_not_found",
                 "user_id": user_id,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
         raise HTTPException(status_code=404, detail="User not found")
@@ -111,7 +111,7 @@ async def get_user(user_id: int):
             "event": "get_user_success",
             "user_id": user_id,
             "user_name": user.name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -127,7 +127,7 @@ async def create_user(user_data: UserCreate):
             "event": "create_user",
             "user_name": user_data.name,
             "user_email": user_data.email,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -138,7 +138,7 @@ async def create_user(user_data: UserCreate):
             extra={
                 "event": "create_user_email_exists",
                 "user_email": user_data.email,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -156,7 +156,7 @@ async def create_user(user_data: UserCreate):
             "user_id": new_user.id,
             "user_name": new_user.name,
             "user_email": new_user.email,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -171,8 +171,8 @@ async def update_user(user_id: int, user_data: UserUpdate):
         extra={
             "event": "update_user",
             "user_id": user_id,
-            "update_fields": [k for k, v in user_data.dict(exclude_unset=True).items()],
-            "timestamp": datetime.utcnow().isoformat(),
+            "update_fields": [k for k, v in user_data.model_dump(exclude_unset=True).items()],
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -186,14 +186,14 @@ async def update_user(user_id: int, user_data: UserUpdate):
             extra={
                 "event": "update_user_not_found",
                 "user_id": user_id,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
         raise HTTPException(status_code=404, detail="User not found")
 
     # Update user
     user = fake_users_db[user_index]
-    update_data = user_data.dict(exclude_unset=True)
+    update_data = user_data.model_dump(exclude_unset=True)
 
     for field, value in update_data.items():
         setattr(user, field, value)
@@ -204,7 +204,7 @@ async def update_user(user_id: int, user_data: UserUpdate):
             "event": "update_user_success",
             "user_id": user_id,
             "updated_fields": list(update_data.keys()),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -219,7 +219,7 @@ async def delete_user(user_id: int):
         extra={
             "event": "delete_user",
             "user_id": user_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
@@ -233,7 +233,7 @@ async def delete_user(user_id: int):
             extra={
                 "event": "delete_user_not_found",
                 "user_id": user_id,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
             },
         )
         raise HTTPException(status_code=404, detail="User not found")
@@ -246,7 +246,7 @@ async def delete_user(user_id: int):
             "event": "delete_user_success",
             "user_id": user_id,
             "user_name": deleted_user.name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 

@@ -1,10 +1,12 @@
 """Application configuration settings."""
 
 
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    model_config = ConfigDict(env_file=".env", case_sensitive=True)
     """Application settings."""
 
     # Application settings
@@ -27,12 +29,6 @@ class Settings(BaseSettings):
 
     # API settings
     API_V1_STR: str = "/api/v1"
-
-    class Config:
-        """Pydantic config."""
-
-        env_file = ".env"
-        case_sensitive = True
 
 
 # Create global settings instance

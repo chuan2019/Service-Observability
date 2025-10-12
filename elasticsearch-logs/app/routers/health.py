@@ -26,12 +26,12 @@ async def health_check():
         extra={
             "event": "health_check",
             "endpoint": "/health",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
     return HealthResponse(
-        status="healthy", timestamp=datetime.utcnow().isoformat(), version="1.0.0"
+        status="healthy", timestamp=datetime.utcnow().isoformat() + "Z", version="1.0.0"
     )
 
 
@@ -43,7 +43,7 @@ async def detailed_health_check():
         extra={
             "event": "detailed_health_check",
             "endpoint": "/health/detailed",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat() + "Z",
         },
     )
 
