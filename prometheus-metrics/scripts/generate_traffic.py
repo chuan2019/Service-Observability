@@ -76,7 +76,7 @@ class TrafficGenerator:
         end_time = time.time() + (duration_minutes * 60)
         request_count = 0
         
-        print(f"🚀 Starting realistic traffic generation for {duration_minutes} minutes...")
+        print(f"Starting realistic traffic generation for {duration_minutes} minutes...")
         
         while time.time() < end_time:
             # Define realistic traffic distribution
@@ -102,12 +102,12 @@ class TrafficGenerator:
             # Print progress every 25 requests
             if request_count % 25 == 0:
                 remaining_time = max(0, end_time - time.time())
-                print(f"📊 Progress: {request_count} requests, {remaining_time/60:.1f} min remaining")
+                print(f"Progress: {request_count} requests, {remaining_time/60:.1f} min remaining")
             
             # Realistic delay between requests (0.5 to 5 seconds)
             await asyncio.sleep(random.uniform(0.5, 5.0))
         
-        print(f"🏁 Traffic generation completed! Total requests: {request_count}")
+        print(f"Traffic generation completed! Total requests: {request_count}")
 
     async def generate_basic_traffic(self):
         """Generate basic endpoint traffic."""
@@ -120,7 +120,7 @@ class TrafficGenerator:
         method, endpoint = random.choice(endpoints)
         result = await self.make_request(method, endpoint)
         if result["success"]:
-            print(f"✓ {method} {endpoint}")
+            print(f"SUCCESS: {method} {endpoint}")
 
     async def generate_user_traffic(self):
         """Generate user-related traffic."""
@@ -137,7 +137,7 @@ class TrafficGenerator:
         json_data = data[0] if data else None
         result = await self.make_request(method, endpoint, json_data)
         if result["success"]:
-            print(f"✓ User operation: {method} {endpoint}")
+            print(f"SUCCESS: User operation: {method} {endpoint}")
 
     async def generate_order_traffic(self):
         """Generate order-related traffic."""
@@ -156,7 +156,7 @@ class TrafficGenerator:
         json_data = data[0] if data else None
         result = await self.make_request(method, endpoint, json_data)
         if result["success"]:
-            print(f"✓ Order operation: {method} {endpoint}")
+            print(f"SUCCESS: Order operation: {method} {endpoint}")
 
     async def generate_payment_traffic(self):
         """Generate payment-related traffic."""
@@ -173,7 +173,7 @@ class TrafficGenerator:
         json_data = data[0] if data else None
         result = await self.make_request(method, endpoint, json_data)
         if result["success"]:
-            print(f"✓ Payment operation: {method} {endpoint}")
+            print(f"SUCCESS: Payment operation: {method} {endpoint}")
 
 
 async def main():
@@ -188,9 +188,9 @@ async def main():
     args = parser.parse_args()
     
     print("=" * 60)
-    print("🚀 FastAPI Prometheus Metrics Traffic Generator")
+    print("FastAPI Prometheus Metrics Traffic Generator")
     print("=" * 60)
-    print(f"📍 Target URL: {args.url}")
+    print(f"Target URL: {args.url}")
     print(f"⏱️  Duration: {args.duration} minutes")
     print("=" * 60)
     
@@ -198,10 +198,10 @@ async def main():
         # Test connection first
         result = await generator.make_request("GET", "/health")
         if not result["success"]:
-            print(f"❌ Cannot connect to {args.url}. Please ensure the FastAPI application is running.")
+            print(f"ERROR: Cannot connect to {args.url}. Please ensure the FastAPI application is running.")
             return
         
-        print(f"✅ Successfully connected to {args.url}")
+        print(f"Successfully connected to {args.url}")
         await generator.generate_mixed_traffic(args.duration)
 
 
@@ -209,8 +209,8 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n🛑 Traffic generation stopped by user")
+        print("\nTraffic generation stopped by user")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         import sys
         sys.exit(1)

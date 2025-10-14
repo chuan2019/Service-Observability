@@ -7,22 +7,22 @@ echo "=================================================="
 
 # Check if virtual environment is activated
 if [[ "$VIRTUAL_ENV" == "" ]]; then
-    echo "⚠️  Warning: No virtual environment detected"
+    echo "Warning: No virtual environment detected"
     echo "Consider activating a virtual environment first:"
     echo "python -m venv venv && source venv/bin/activate"
     echo ""
 fi
 
 # Install dependencies
-echo "📦 Installing dependencies..."
+echo "Installing dependencies..."
 pip install -r requirements.txt
 
 # Initialize database and sample data
-echo "🗄️  Initializing database and sample data..."
+echo "Initializing database and sample data..."
 python scripts/init_sample_data.py
 
 # Start services
-echo "🚀 Starting services..."
+echo "Starting services..."
 echo ""
 echo "Starting FastAPI application with Prometheus metrics..."
 echo "Application will be available at: http://localhost:8000"

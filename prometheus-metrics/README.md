@@ -1,6 +1,28 @@
-# FastAPI Prometheus Metrics Integration
+# E-Commerce Microservices with Prometheus & Grafana
 
-A comprehensive FastAPI application demonstrating Prometheus metrics integration for monitoring and observability.
+This project demonstrates a complete e-commerce microservices architecture built with FastAPI, featuring comprehensive Prometheus metrics integration and Grafana dashboards for monitoring and observability.
+
+## Example Workflows
+
+The application implements a realistic e-commerce system with the following microservices:
+
+### Setup
+1. **User Service** - User management and authentication
+2. **Product Service** - Product catalog and search
+3. **Inventory Service** - Stock management and reservations
+4. **Order Service** - Order orchestration and workflow
+5. **Payment Service** - Payment processing and refunds
+6. **Notification Service** - Email notifications and alerts
+
+### Key Features
+- **Database-backed operations** with SQLAlchemy and SQLite
+- **Real inter-service communication** with proper orchestration
+- **Comprehensive Prometheus metrics** for each microservice
+- **RESTful API endpoints** with OpenAPI documentation
+- **Pydantic data validation** and serialization
+- **Async/await** throughout for high performance
+- **Error handling** and proper HTTP status codes
+- **Complete order workflow** demonstrating all services
 
 ## Prerequisites
 
@@ -45,25 +67,25 @@ make dashboard
 
 This application demonstrates a microservices architecture with three main services:
 
-### 🧑‍💼 User Service (`/api/v1/users`)
+### User Service (`/api/v1/users`)
 - User registration, retrieval, updates, and deletion
 - User validation for cross-service operations
 - Metrics: active users, database queries, operation latency
 
-### 📦 Order Service (`/api/v1/orders`)  
+### Order Service (`/api/v1/orders`)  
 - Order creation, processing, and status management
 - Order cancellation and fulfillment workflows
 - Cross-service validation with User Service
 - Metrics: order values, status transitions, processing times
 
-### 💳 Payment Service (`/api/v1/payments`)
+### Payment Service (`/api/v1/payments`)
 - Payment processing with multiple payment methods
 - Payment gateway integration simulation
 - Refund processing capabilities
 - Cross-service validation with Order Service  
 - Metrics: payment amounts, gateway calls, failure reasons
 
-### 🎯 Demo Service (`/api/v1/demo`)
+### Demo Service (`/api/v1/demo`)
 - Full workflow demonstrations (user → order → payment)
 - User journey simulations
 - Stress testing endpoints
