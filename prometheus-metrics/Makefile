@@ -33,20 +33,11 @@ uv-init:  ## Initialize uv project and create virtual environment
 	uv venv --clear
 	uv sync --all-extras
 
-test:  ## Run all tests
-	uv run pytest -v
+test:  ## Run microservices integration tests
+	python -m pytest tests/ -v
 
-test-coverage:  ## Run tests with coverage
-	uv run pytest --cov=app --cov-report=html --cov-report=term-missing
-
-test-users:  ## Run user service tests only
-	uv run pytest tests/test_users.py -v
-
-test-orders:  ## Run order service tests only
-	uv run pytest tests/test_orders.py -v
-
-test-payments:  ## Run payment service tests only
-	uv run pytest tests/test_payments.py -v
+test-microservices:  ## Run microservices integration tests
+	python -m pytest tests/test_microservices.py -v
 
 test-demo:  ## Run demo service tests only
 	uv run pytest tests/test_demo.py -v
@@ -83,26 +74,26 @@ check:  ## Run all quality checks
 	@echo "Running tests..."
 	uv run pytest
 
-run:  ## Run the application locally
-	uv run python -m app.main
+run:  ## Start all microservices with Docker
+	./start-microservices.sh
 
-run-dev:  ## Run the application in development mode
-	uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+run-demo:  ## Start core microservices for demo
+	./demo-microservices.sh
 
-docker-build:  ## Build Docker image
-	docker build -f docker/Dockerfile -t fastapi-prometheus-metrics .
+docker-compose-up:  ## Start all microservices with docker-compose
+	docker-compose -f docker-compose.microservices.yml up --build -d
 
-docker-run:  ## Run Docker container
-	docker run -p 8000:8000 fastapi-prometheus-metrics
+docker-compose-down:  ## Stop all microservices
+	docker-compose -f docker-compose.microservices.yml down
 
-docker-compose-up:  ## Start all services with docker-compose
-	docker-compose up -d
+docker-compose-logs:  ## View logs from all microservices
+	docker-compose -f docker-compose.microservices.yml logs -f
 
-docker-compose-down:  ## Stop all services
-	docker-compose down
+services-health:  ## Check health of all microservices
+	curl -s http://localhost:8000/health/services | python -m json.tool
 
-docker-compose-logs:  ## View logs from all services
-	docker-compose logs -f
+init-data:  ## Initialize sample data for microservices
+	python scripts/init_microservices_data.py
 
 setup-env:  ## Copy example environment file
 	cp .env.example .env
@@ -135,25 +126,25 @@ production-setup: install  ## Production setup
 # DOCKER OPERATIONS
 # =============================================================================
 
-start:  ## Start all services (alias for docker-compose-up)
-	@echo "Starting all services..."
-	docker-compose up -d
-	@echo "Services started! Waiting for initialization..."
-	@sleep 5
+start:  ## Start all microservices
+	@echo "Starting all microservices..."
+	docker-compose -f docker-compose.microservices.yml up -d
+	@echo "Microservices started! Waiting for initialization..."
+	@sleep 15
 	@echo "Services should be available at:"
-	@echo "  FastAPI App: http://localhost:8000"
+	@echo "  API Gateway: http://localhost:8000"
 	@echo "  Prometheus:  http://localhost:9090"
 	@echo "  Grafana:     http://localhost:3000 (admin/admin123)"
 
-stop:  ## Stop all services (alias for docker-compose-down)
-	@echo "Stopping all services..."
-	docker-compose down
+stop:  ## Stop all microservices
+	@echo "Stopping all microservices..."
+	docker-compose -f docker-compose.microservices.yml down
 
-restart:  ## Restart all services
-	@echo "Restarting all services..."
-	docker-compose down
-	docker-compose up -d
-	@echo "Services restarted!"
+restart:  ## Restart all microservices
+	@echo "Restarting all microservices..."
+	docker-compose -f docker-compose.microservices.yml down
+	docker-compose -f docker-compose.microservices.yml up -d
+	@echo "Microservices restarted!"
 
 status:  ## Show status of all containers
 	@echo "Container status:"
