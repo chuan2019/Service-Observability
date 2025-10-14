@@ -10,7 +10,7 @@ from app.database import get_session
 from app.services.payment_service import payment_service
 from app.models import Payment, PaymentStatus
 
-router = APIRouter(prefix="/payments", tags=["payments"])
+router = APIRouter(prefix="/payments", tags=["Payments"])
 
 # Pydantic models for API
 class PaymentCreate(BaseModel):

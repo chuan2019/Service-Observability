@@ -9,7 +9,7 @@ from app.database import get_session
 from app.services.inventory_service import inventory_service
 from app.models import Stock
 
-router = APIRouter(prefix="/inventory", tags=["inventory"])
+router = APIRouter(prefix="/inventory", tags=["Inventory"])
 
 # Pydantic models for API
 class StockResponse(BaseModel):

@@ -10,7 +10,7 @@ from app.database import get_session
 from app.services.product_service import product_service
 from app.models import Product
 
-router = APIRouter(prefix="/products", tags=["products"])
+router = APIRouter(prefix="/products", tags=["Products"])
 
 # Pydantic models for API
 class ProductCreate(BaseModel):

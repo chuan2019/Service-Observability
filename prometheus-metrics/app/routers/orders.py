@@ -10,7 +10,7 @@ from app.database import get_session
 from app.services.order_service import order_service
 from app.models import Order, OrderStatus
 
-router = APIRouter(prefix="/orders", tags=["orders"])
+router = APIRouter(prefix="/orders", tags=["Orders"])
 
 # Pydantic models for API
 class OrderItemCreate(BaseModel):

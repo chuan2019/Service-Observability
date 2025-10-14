@@ -11,7 +11,7 @@ from app.services.product_service import product_service
 from app.services.order_service import order_service
 from app.services.inventory_service import inventory_service
 
-router = APIRouter(prefix="/demo", tags=["demo"])
+router = APIRouter(prefix="/demo", tags=["Demo"])
 
 class CompleteOrderDemo(BaseModel):
     user_email: str

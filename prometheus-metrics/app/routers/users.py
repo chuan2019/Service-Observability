@@ -10,7 +10,7 @@ from app.database import get_session
 from app.services.user_service import user_service
 from app.models import User
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 # Pydantic models for API
 class UserCreate(BaseModel):

@@ -10,8 +10,10 @@ from prometheus_client import make_asgi_app
 from app.core.config import settings
 from app.middleware.metrics import MetricsMiddleware
 from app.database import init_db
-from app.routers import health, users, products, orders, payments, inventory, demo, metrics
-
+from app.routers import (
+    health, users, products, orders, payments,
+    inventory, demo, metrics
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
