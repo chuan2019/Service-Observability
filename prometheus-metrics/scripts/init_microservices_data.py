@@ -71,7 +71,7 @@ class MicroservicesDataInitializer:
         for user_data in sample_users:
             try:
                 async with self.session.post(
-                    f"{self.base_url}/api/v1/users",
+                    f"{self.base_url}/api/users",
                     json=user_data,
                     headers={"Content-Type": "application/json"}
                 ) as response:
@@ -170,7 +170,7 @@ class MicroservicesDataInitializer:
         for product_data in sample_products:
             try:
                 async with self.session.post(
-                    f"{self.base_url}/api/v1/products",
+                    f"{self.base_url}/api/products",
                     json=product_data,
                     headers={"Content-Type": "application/json"}
                 ) as response:
@@ -209,7 +209,7 @@ class MicroservicesDataInitializer:
             
             try:
                 async with self.session.post(
-                    f"{self.base_url}/api/v1/inventory",
+                    f"{self.base_url}/api/inventory",
                     json=inventory_data,
                     headers={"Content-Type": "application/json"}
                 ) as response:
