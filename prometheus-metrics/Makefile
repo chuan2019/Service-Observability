@@ -33,11 +33,38 @@ uv-init:  ## Initialize uv project and create virtual environment
 	uv venv --clear
 	uv sync --all-extras
 
-test:  ## Run tests
+test:  ## Run all tests
 	uv run pytest -v
 
 test-coverage:  ## Run tests with coverage
 	uv run pytest --cov=app --cov-report=html --cov-report=term-missing
+
+test-users:  ## Run user service tests only
+	uv run pytest tests/test_users.py -v
+
+test-orders:  ## Run order service tests only
+	uv run pytest tests/test_orders.py -v
+
+test-payments:  ## Run payment service tests only
+	uv run pytest tests/test_payments.py -v
+
+test-demo:  ## Run demo service tests only
+	uv run pytest tests/test_demo.py -v
+
+test-integration:  ## Run integration tests only
+	uv run pytest tests/test_integration.py -v
+
+test-metrics:  ## Run metrics tests only
+	uv run pytest tests/test_metrics.py -v
+
+test-services:  ## Run all service tests (users, orders, payments, demo)
+	uv run pytest tests/test_users.py tests/test_orders.py tests/test_payments.py tests/test_demo.py -v
+
+test-fast:  ## Run tests with minimal output
+	uv run pytest -q
+
+test-verbose:  ## Run tests with maximum verbosity
+	uv run pytest -vvv --tb=long
 
 lint:  ## Run linting
 	uv run flake8 app/ tests/
@@ -159,7 +186,7 @@ traffic-light:  ## Generate light traffic (1 req/sec for 30 seconds)
 traffic-medium:  ## Generate medium traffic (5 req/sec for 60 seconds)
 	@echo "Generating medium traffic (5 req/sec for 60 seconds)..."
 	@for i in $$(seq 1 300); do \
-		curl -s http://localhost:8000/api/v1/users/ > /dev/null && echo -n "." || echo -n "x"; \
+		curl -s http://localhost:8000/api/v1/users > /dev/null && echo -n "." || echo -n "x"; \
 		if [ $$((i % 50)) -eq 0 ]; then echo " [$$i/300]"; fi; \
 		sleep 0.2; \
 	done
@@ -171,24 +198,29 @@ traffic-heavy:  ## Generate heavy traffic (concurrent requests for 2 minutes)
 	@(for i in $$(seq 1 120); do \
 		curl -s http://localhost:8000/health/ > /dev/null & \
 		curl -s http://localhost:8000/api/v1/users/ > /dev/null & \
-		curl -s http://localhost:8000/api/v1/items/ > /dev/null & \
+		curl -s http://localhost:8000/api/v1/orders/ > /dev/null & \
 		curl -s http://localhost:8000/metrics > /dev/null & \
 		if [ $$((i % 10)) -eq 0 ]; then echo "Heavy traffic: $$i/120 seconds"; fi; \
 		sleep 1; \
 	done; wait)
 	@echo "Heavy traffic generation completed!"
 
-traffic-burst:  ## Generate burst traffic using Python script
-	@echo "Generating burst traffic (5 bursts of 20 requests each)..."
-	@uv run python scripts/generate_traffic.py burst --bursts 5 --size 20 --interval 3
+traffic-realistic:  ## Generate realistic microservices traffic using Python script
+	@echo "Generating realistic microservices traffic (users, orders, payments)..."
+	@uv run python scripts/generate_traffic.py --duration 5
 
-traffic-random:  ## Generate random traffic using Python script  
-	@echo "Generating random traffic for 90 seconds..."
-	@uv run python scripts/generate_traffic.py random --duration 90 --min-interval 0.1 --max-interval 1.5
+traffic-extended:  ## Generate extended realistic traffic for 15 minutes
+	@echo "Generating extended realistic traffic for 15 minutes..."
+	@uv run python scripts/generate_traffic.py --duration 15
 
-traffic-steady:  ## Generate steady traffic using Python script
-	@echo "Generating steady traffic (2 req/sec for 60 seconds)..."
-	@uv run python scripts/generate_traffic.py steady --duration 60 --rate 2.0
+# Manual endpoint testing with curl (these are for manual testing when server is running)
+
+test-all-endpoints:  ## Test all service endpoints
+	@echo "Testing all service endpoints..."
+	@make test-users
+	@make test-orders  
+	@make test-payments
+	@make test-demo
 
 traffic-stop:  ## Stop any running traffic generation
 	@echo "Stopping traffic generation processes..."
