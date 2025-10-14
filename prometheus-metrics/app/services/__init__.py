@@ -1,1 +1,1 @@
-# Services module
+"""Services package for microservices architecture."""

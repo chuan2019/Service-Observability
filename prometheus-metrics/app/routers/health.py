@@ -1,43 +1,36 @@
-"""
-Health check router for monitoring application status.
-"""
+"""Health check endpoints."""
 
-from fastapi import APIRouter
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import get_session, engine
+from datetime import datetime
 
 router = APIRouter()
 
-
-class HealthResponse(BaseModel):
-    """Health check response model."""
-    status: str
-    message: str
-    version: str = "1.0.0"
-
-
-@router.get("/", response_model=HealthResponse)
+@router.get("/health")
 async def health_check():
     """Basic health check endpoint."""
-    return HealthResponse(
-        status="healthy",
-        message="Application is running properly"
-    )
+    return {
+        "status": "healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "service": "fastapi-prometheus-metrics"
+    }
 
-
-@router.get("/ready", response_model=HealthResponse)
-async def readiness_check():
-    """Readiness check endpoint for Kubernetes."""
-    # Add any dependency checks here (database, external services, etc.)
-    return HealthResponse(
-        status="ready",
-        message="Application is ready to accept requests"
-    )
-
-
-@router.get("/live", response_model=HealthResponse)
-async def liveness_check():
-    """Liveness check endpoint for Kubernetes."""
-    return HealthResponse(
-        status="alive",
-        message="Application is alive"
-    )
+@router.get("/health/db")
+async def database_health_check(session: AsyncSession = Depends(get_session)):
+    """Database health check endpoint."""
+    try:
+        # Simple query to test database connectivity
+        await session.execute("SELECT 1")
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }

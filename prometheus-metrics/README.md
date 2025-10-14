@@ -1,6 +1,28 @@
-# FastAPI Prometheus Metrics Integration
+# E-Commerce Microservices with Prometheus & Grafana
 
-A comprehensive FastAPI application demonstrating Prometheus metrics integration for monitoring and observability.
+This project demonstrates a complete e-commerce microservices architecture built with FastAPI, featuring comprehensive Prometheus metrics integration and Grafana dashboards for monitoring and observability.
+
+## Example Workflows
+
+The application implements a realistic e-commerce system with the following microservices:
+
+### Setup
+1. **User Service** - User management and authentication
+2. **Product Service** - Product catalog and search
+3. **Inventory Service** - Stock management and reservations
+4. **Order Service** - Order orchestration and workflow
+5. **Payment Service** - Payment processing and refunds
+6. **Notification Service** - Email notifications and alerts
+
+### Key Features
+- **Database-backed operations** with SQLAlchemy and SQLite
+- **Real inter-service communication** with proper orchestration
+- **Comprehensive Prometheus metrics** for each microservice
+- **RESTful API endpoints** with OpenAPI documentation
+- **Pydantic data validation** and serialization
+- **Async/await** throughout for high performance
+- **Error handling** and proper HTTP status codes
+- **Complete order workflow** demonstrating all services
 
 ## Prerequisites
 
@@ -25,17 +47,49 @@ make dashboard
 
 ## Features
 
-- **FastAPI Application** with multiple endpoints
+- **Microservices Architecture** with User, Order, and Payment services
+- **FastAPI Application** with comprehensive REST API endpoints
 - **Prometheus Metrics** integration with custom middleware
+- **Service-Specific Metrics** for each microservice with detailed tracking
+- **Cross-Service Operations** demonstrating distributed system patterns
 - **Health Checks** for Kubernetes readiness/liveness probes
 - **Custom Business Metrics** for application-specific monitoring
 - **Docker Support** with docker-compose for easy deployment
 - **Grafana Integration** for metrics visualization
-- **Advanced Traffic Generation** with Python scripts
+- **Realistic Traffic Generation** with Python scripts for all services
+- **Demo Endpoints** showcasing full application workflows
 - **Real-time Monitoring Dashboard** 
 - **Comprehensive Make Commands** for operations
 - **Unit Tests** with pytest
 - **Comprehensive Documentation**
+
+## Microservices Architecture
+
+This application demonstrates a microservices architecture with three main services:
+
+### User Service (`/api/v1/users`)
+- User registration, retrieval, updates, and deletion
+- User validation for cross-service operations
+- Metrics: active users, database queries, operation latency
+
+### Order Service (`/api/v1/orders`)  
+- Order creation, processing, and status management
+- Order cancellation and fulfillment workflows
+- Cross-service validation with User Service
+- Metrics: order values, status transitions, processing times
+
+### Payment Service (`/api/v1/payments`)
+- Payment processing with multiple payment methods
+- Payment gateway integration simulation
+- Refund processing capabilities
+- Cross-service validation with Order Service  
+- Metrics: payment amounts, gateway calls, failure reasons
+
+### Demo Service (`/api/v1/demo`)
+- Full workflow demonstrations (user → order → payment)
+- User journey simulations
+- Stress testing endpoints
+- Metrics generation for testing purposes
 
 ## Project Structure
 
@@ -54,10 +108,16 @@ metrics_01/
 │   │   ├── __init__.py
 │   │   ├── health.py              # Health check endpoints
 │   │   ├── api.py                 # Main API endpoints
-│   │   └── tasks.py               # Background task endpoints
+│   │   ├── users.py               # User management endpoints
+│   │   ├── orders.py              # Order management endpoints
+│   │   ├── payments.py            # Payment processing endpoints
+│   │   └── demo.py                # Demo and testing endpoints
 │   └── services/
 │       ├── __init__.py
-│       └── metrics_service.py     # Custom metrics service
+│       ├── metrics_service.py     # Custom metrics service
+│       ├── user_service.py        # User business logic with metrics
+│       ├── order_service.py       # Order business logic with metrics
+│       └── payment_service.py     # Payment business logic with metrics
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py               # Test configuration
@@ -89,12 +149,31 @@ metrics_01/
 - `http_requests_active` - Number of active HTTP requests
 
 ### Business Metrics
-- `user_operations_total` - User-related operations (get, create, etc.)
-- `task_operations_total` - Task-related operations (created, completed, failed)
+
+#### User Service Metrics
+- `user_service_operations_total` - User operations by type and status
+- `user_service_operation_duration_seconds` - User operation duration
+- `user_service_active_users` - Number of active users
+- `user_service_db_queries_total` - Database queries by type and status
+
+#### Order Service Metrics  
+- `order_service_operations_total` - Order operations by type and status
+- `order_service_operation_duration_seconds` - Order operation duration
+- `order_service_active_orders` - Number of active orders
+- `order_service_order_value` - Order value distribution by type
+- `order_service_items_per_order` - Items per order distribution
+- `order_service_status_changes_total` - Order status transitions
+
+#### Payment Service Metrics
+- `payment_service_operations_total` - Payment operations by type and status
+- `payment_service_operation_duration_seconds` - Payment operation duration  
+- `payment_service_amount` - Payment amounts by method and status
+- `payment_service_gateway_calls_total` - Gateway calls by provider and status
+- `payment_service_failed_payments_total` - Failed payments by reason
+- `payment_service_processing_queue` - Payments in processing queue
+
+#### Application-Level Metrics
 - `api_errors_total` - API errors by endpoint and error type
-- `business_processing_seconds` - Business operation processing time
-- `active_sessions` - Number of active user sessions
-- `memory_usage_bytes` - Memory usage by component
 
 ## Quick Start
 
@@ -138,6 +217,17 @@ This project includes comprehensive Make commands for easy operations. See [MAKE
 ```bash
 # Complete setup and start everything
 make full-setup
+
+# Test individual microservices
+make test-users      # Test user service endpoints
+make test-orders     # Test order service endpoints  
+make test-payments   # Test payment service endpoints
+make test-demo       # Test demo endpoints
+make test-all-endpoints  # Test all services
+
+# Generate realistic traffic
+make traffic-realistic   # 5-minute realistic traffic
+make traffic-extended    # 15-minute extended traffic
 
 # Docker operations
 make start          # Start all services
@@ -195,17 +285,81 @@ Use `make help` to see all available commands.
 - `GET /health/ready` - Readiness probe for Kubernetes
 - `GET /health/live` - Liveness probe for Kubernetes
 
-### API Endpoints
-- `GET /api/v1/users` - Get all users
-- `GET /api/v1/users/{user_id}` - Get user by ID
-- `POST /api/v1/users` - Create new user
-- `GET /api/v1/slow-endpoint` - Slow endpoint for testing
-- `GET /api/v1/memory-intensive` - Memory-intensive endpoint
+### User Service (`/api/v1/users`)
+```bash
+# Create a user
+curl -X POST http://localhost:8000/api/v1/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Doe", "email": "john@example.com", "status": "active"}'
 
-### Task Endpoints
-- `POST /tasks/` - Create background task
-- `GET /tasks/` - List all tasks
-- `GET /tasks/{task_id}` - Get task status
+# Get all users
+curl http://localhost:8000/api/v1/users
+
+# Get user by ID
+curl http://localhost:8000/api/v1/users/1
+
+# Update user
+curl -X PUT http://localhost:8000/api/v1/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Updated", "status": "inactive"}'
+
+# Delete user
+curl -X DELETE http://localhost:8000/api/v1/users/1
+```
+
+### Order Service (`/api/v1/orders`)
+```bash
+# Create an order
+curl -X POST http://localhost:8000/api/v1/orders \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 1, "amount": 99.99, "items": ["item1", "item2"], "type": "express"}'
+
+# Get all orders
+curl http://localhost:8000/api/v1/orders
+
+# Get order by ID
+curl http://localhost:8000/api/v1/orders/101
+
+# Process order
+curl -X POST http://localhost:8000/api/v1/orders/101/process
+
+# Cancel order
+curl -X POST http://localhost:8000/api/v1/orders/101/cancel?reason=user_requested
+
+# Get orders by user
+curl http://localhost:8000/api/v1/orders/user/1
+```
+
+### Payment Service (`/api/v1/payments`)
+```bash
+# Process a payment
+curl -X POST http://localhost:8000/api/v1/payments \
+  -H "Content-Type: application/json" \
+  -d '{"order_id": 101, "amount": 99.99, "method": "credit_card"}'
+
+# Get payment by ID
+curl http://localhost:8000/api/v1/payments/1001
+
+# Get payments for order
+curl http://localhost:8000/api/v1/payments/order/101
+
+# Refund payment
+curl -X POST http://localhost:8000/api/v1/payments/1001/refund \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 50.00, "reason": "defective_product"}'
+```
+
+### Demo Service (`/api/v1/demo`)
+```bash
+# Run full flow demo (user → order → payment)
+curl http://localhost:8000/api/v1/demo/full-flow/1
+
+# Simulate complete user journey
+curl -X POST http://localhost:8000/api/v1/demo/simulate-user-journey
+
+# Run stress test
+curl http://localhost:8000/api/v1/demo/stress-test
+```
 
 ### Metrics Endpoint
 - `GET /metrics` - Prometheus metrics in text format

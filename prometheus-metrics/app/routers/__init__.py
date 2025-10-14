@@ -1,1 +1,1 @@
-# Routers module
+"""API routers package."""

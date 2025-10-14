@@ -1,5 +1,5 @@
 """
-FastAPI application with Prometheus metrics integration.
+FastAPI application with Prometheus metrics integration and microservices architecture.
 """
 
 from contextlib import asynccontextmanager
@@ -9,8 +9,11 @@ from prometheus_client import make_asgi_app
 
 from app.core.config import settings
 from app.middleware.metrics import MetricsMiddleware
-from app.routers import health, api, tasks
-
+from app.database import init_db
+from app.routers import (
+    health, users, products, orders, payments,
+    inventory, demo, metrics
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,6 +22,12 @@ async def lifespan(app: FastAPI):
     print(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
     print(f"Environment: {settings.ENVIRONMENT}")
     print(f"Metrics endpoint: http://localhost:{settings.PORT}/metrics")
+    
+    # Initialize database
+    print("Initializing database...")
+    await init_db()
+    print("Database initialized successfully")
+    
     yield
     # Shutdown
     print("Shutting down...")
@@ -49,22 +58,16 @@ def create_app() -> FastAPI:
     app.add_middleware(MetricsMiddleware)
 
     # Include routers
-    app.include_router(health.router, prefix="/health", tags=["Health"])
-    app.include_router(api.router, prefix="/api/v1", tags=["API"])
-    app.include_router(tasks.router, prefix="/tasks", tags=["Tasks"])
-
-    # Prometheus metrics endpoint - use custom registry
-    from app.middleware.metrics import REGISTRY
-    from fastapi import Response
+    app.include_router(health.router, tags=["Health"])
+    app.include_router(metrics.router, tags=["Metrics"])
     
-    @app.get("/metrics")
-    async def get_metrics():
-        """Get Prometheus metrics."""
-        from prometheus_client import generate_latest
-        return Response(
-            generate_latest(REGISTRY),
-            media_type="text/plain; version=0.0.4; charset=utf-8"
-        )
+    # Include microservices routers
+    app.include_router(users.router, prefix="/api/v1", tags=["Users"])
+    app.include_router(products.router, prefix="/api/v1", tags=["Products"])
+    app.include_router(orders.router, prefix="/api/v1", tags=["Orders"])
+    app.include_router(payments.router, prefix="/api/v1", tags=["Payments"])
+    app.include_router(inventory.router, prefix="/api/v1", tags=["Inventory"])
+    app.include_router(demo.router, prefix="/api/v1", tags=["Demo"])
 
     return app
 

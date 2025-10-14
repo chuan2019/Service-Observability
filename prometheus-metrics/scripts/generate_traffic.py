@@ -1,171 +1,208 @@
 #!/usr/bin/env python3
 """
-Traffic generation script for FastAPI Prometheus metrics testing.
-Generates various types of traffic patterns to test monitoring setup.
+Traffic generation script for FastAPI Prometheus metrics demonstration.
+Generates realistic traffic patterns to showcase metrics collection.
 """
 
 import asyncio
-import random
-import time
-from typing import List
 import aiohttp
-import argparse
-import sys
+import random
+import json
+import time
+from typing import List, Dict, Any
+from datetime import datetime
 
 
 class TrafficGenerator:
+    """Generate realistic traffic for the FastAPI application."""
+
     def __init__(self, base_url: str = "http://localhost:8000"):
         self.base_url = base_url
-        self.endpoints = [
-            "/health/",
-            "/api/v1/users/",
-            "/api/v1/items/",
-            "/metrics",
-        ]
         self.session = None
-        
+        self.created_users = []
+        self.created_orders = []
+        self.created_payments = []
+
     async def __aenter__(self):
+        """Async context manager entry."""
         self.session = aiohttp.ClientSession()
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit."""
         if self.session:
             await self.session.close()
-    
-    async def make_request(self, endpoint: str) -> bool:
-        """Make a single request and return success status."""
+
+    async def make_request(
+        self, 
+        method: str, 
+        endpoint: str, 
+        json_data: Dict[str, Any] = None,
+        params: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
+        """Make an HTTP request with error handling."""
+        url = f"{self.base_url}{endpoint}"
+        
         try:
-            url = f"{self.base_url}{endpoint}"
-            async with self.session.get(url, timeout=5) as response:
-                return response.status == 200
-        except Exception:
-            return False
-    
-    async def generate_steady_traffic(self, duration: int, requests_per_second: float):
-        """Generate steady traffic at specified rate."""
-        print(f"Generating steady traffic: {requests_per_second} req/sec for {duration} seconds")
-        
-        interval = 1.0 / requests_per_second
-        end_time = time.time() + duration
+            async with self.session.request(
+                method, 
+                url, 
+                json=json_data,
+                params=params
+            ) as response:
+                if response.content_type == 'application/json':
+                    return {
+                        "status": response.status,
+                        "data": await response.json(),
+                        "success": response.status < 400
+                    }
+                else:
+                    return {
+                        "status": response.status,
+                        "data": await response.text(),
+                        "success": response.status < 400
+                    }
+        except Exception as e:
+            print(f"Error making {method} request to {url}: {e}")
+            return {
+                "status": 0,
+                "data": {"error": str(e)},
+                "success": False
+            }
+
+    # Add all the new traffic generation methods here...
+    async def generate_mixed_traffic(self, duration_minutes: int = 10):
+        """Generate mixed traffic for specified duration with realistic patterns."""
+        end_time = time.time() + (duration_minutes * 60)
         request_count = 0
-        success_count = 0
+        
+        print(f"Starting realistic traffic generation for {duration_minutes} minutes...")
         
         while time.time() < end_time:
-            endpoint = random.choice(self.endpoints)
-            success = await self.make_request(endpoint)
+            # Define realistic traffic distribution
+            traffic_types = [
+                (self.generate_basic_traffic, 0.4),      # 40% basic traffic
+                (self.generate_user_traffic, 0.25),      # 25% user operations  
+                (self.generate_order_traffic, 0.25),     # 25% order operations
+                (self.generate_payment_traffic, 0.1),    # 10% payment operations
+            ]
+            
+            # Select traffic type based on distribution
+            rand = random.random()
+            cumulative = 0
+            
+            for traffic_func, weight in traffic_types:
+                cumulative += weight
+                if rand <= cumulative:
+                    await traffic_func()
+                    break
             
             request_count += 1
-            if success:
-                success_count += 1
             
-            if request_count % 10 == 0:
-                remaining = int(end_time - time.time())
-                success_rate = (success_count / request_count) * 100
-                print(f"Requests: {request_count}, Success: {success_rate:.1f}%, Remaining: {remaining}s")
+            # Print progress every 25 requests
+            if request_count % 25 == 0:
+                remaining_time = max(0, end_time - time.time())
+                print(f"Progress: {request_count} requests, {remaining_time/60:.1f} min remaining")
             
-            await asyncio.sleep(interval)
+            # Realistic delay between requests (0.5 to 5 seconds)
+            await asyncio.sleep(random.uniform(0.5, 5.0))
         
-        success_rate = (success_count / request_count) * 100
-        print(f"Completed: {request_count} requests, {success_rate:.1f}% success rate")
-    
-    async def generate_burst_traffic(self, bursts: int, burst_size: int, burst_interval: float):
-        """Generate traffic in bursts."""
-        print(f"Generating burst traffic: {bursts} bursts of {burst_size} requests each")
+        print(f"Traffic generation completed! Total requests: {request_count}")
+
+    async def generate_basic_traffic(self):
+        """Generate basic endpoint traffic."""
+        endpoints = [
+            ("GET", "/"),
+            ("GET", "/health"),
+            ("GET", "/metrics"),
+        ]
         
-        total_requests = 0
-        total_success = 0
+        method, endpoint = random.choice(endpoints)
+        result = await self.make_request(method, endpoint)
+        if result["success"]:
+            print(f"SUCCESS: {method} {endpoint}")
+
+    async def generate_user_traffic(self):
+        """Generate user-related traffic."""
+        operations = [
+            ("GET", "/api/v1/users"),
+            ("GET", f"/api/v1/users/{random.randint(1, 5)}"),
+            ("POST", "/api/v1/users", {
+                "name": f"User {random.randint(1000, 9999)}",
+                "email": f"user{random.randint(1000, 9999)}@example.com"
+            })
+        ]
         
-        for burst_num in range(bursts):
-            print(f"Starting burst {burst_num + 1}/{bursts}")
-            
-            # Create concurrent requests for this burst
-            tasks = []
-            for _ in range(burst_size):
-                endpoint = random.choice(self.endpoints)
-                tasks.append(self.make_request(endpoint))
-            
-            # Execute burst
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            
-            # Count successes
-            burst_success = sum(1 for r in results if r is True)
-            total_requests += burst_size
-            total_success += burst_success
-            
-            print(f"Burst {burst_num + 1} completed: {burst_success}/{burst_size} successful")
-            
-            # Wait before next burst (except for last burst)
-            if burst_num < bursts - 1:
-                await asyncio.sleep(burst_interval)
+        method, endpoint, *data = random.choice(operations)
+        json_data = data[0] if data else None
+        result = await self.make_request(method, endpoint, json_data)
+        if result["success"]:
+            print(f"SUCCESS: User operation: {method} {endpoint}")
+
+    async def generate_order_traffic(self):
+        """Generate order-related traffic."""
+        operations = [
+            ("GET", "/api/v1/orders"),
+            ("GET", f"/api/v1/orders/{random.randint(101, 105)}"),
+            ("POST", "/api/v1/orders", {
+                "user_id": random.randint(1, 3),
+                "amount": round(random.uniform(20, 200), 2),
+                "items": [f"item_{i}" for i in range(1, random.randint(2, 5))],
+                "type": random.choice(["standard", "express"])
+            })
+        ]
         
-        success_rate = (total_success / total_requests) * 100
-        print(f"All bursts completed: {total_requests} total requests, {success_rate:.1f}% success rate")
-    
-    async def generate_random_traffic(self, duration: int, min_interval: float, max_interval: float):
-        """Generate random traffic with variable intervals."""
-        print(f"Generating random traffic for {duration} seconds")
+        method, endpoint, *data = random.choice(operations)
+        json_data = data[0] if data else None
+        result = await self.make_request(method, endpoint, json_data)
+        if result["success"]:
+            print(f"SUCCESS: Order operation: {method} {endpoint}")
+
+    async def generate_payment_traffic(self):
+        """Generate payment-related traffic."""
+        operations = [
+            ("POST", "/api/v1/payments", {
+                "order_id": random.choice([101, 102]),
+                "amount": round(random.uniform(20, 200), 2),
+                "method": random.choice(["credit_card", "paypal"])
+            }),
+            ("GET", f"/api/v1/payments/{random.randint(1001, 1005)}"),
+        ]
         
-        end_time = time.time() + duration
-        request_count = 0
-        success_count = 0
-        
-        while time.time() < end_time:
-            endpoint = random.choice(self.endpoints)
-            success = await self.make_request(endpoint)
-            
-            request_count += 1
-            if success:
-                success_count += 1
-            
-            if request_count % 5 == 0:
-                remaining = int(end_time - time.time())
-                success_rate = (success_count / request_count) * 100 if request_count > 0 else 0
-                print(f"Random traffic: {request_count} requests, {success_rate:.1f}% success, {remaining}s remaining")
-            
-            # Random interval between requests
-            interval = random.uniform(min_interval, max_interval)
-            await asyncio.sleep(interval)
-        
-        success_rate = (success_count / request_count) * 100 if request_count > 0 else 0
-        print(f"Random traffic completed: {request_count} requests, {success_rate:.1f}% success rate")
+        method, endpoint, *data = random.choice(operations)
+        json_data = data[0] if data else None
+        result = await self.make_request(method, endpoint, json_data)
+        if result["success"]:
+            print(f"SUCCESS: Payment operation: {method} {endpoint}")
 
 
 async def main():
-    parser = argparse.ArgumentParser(description="Generate traffic for FastAPI metrics testing")
-    parser.add_argument("--url", default="http://localhost:8000", help="Base URL for the application")
+    """Main function to run traffic generation."""
+    import argparse
+    import sys
     
-    subparsers = parser.add_subparsers(dest="mode", help="Traffic generation mode")
-    
-    # Steady traffic
-    steady = subparsers.add_parser("steady", help="Generate steady traffic")
-    steady.add_argument("--duration", type=int, default=60, help="Duration in seconds")
-    steady.add_argument("--rate", type=float, default=1.0, help="Requests per second")
-    
-    # Burst traffic
-    burst = subparsers.add_parser("burst", help="Generate burst traffic")
-    burst.add_argument("--bursts", type=int, default=5, help="Number of bursts")
-    burst.add_argument("--size", type=int, default=10, help="Requests per burst")
-    burst.add_argument("--interval", type=float, default=5.0, help="Seconds between bursts")
-    
-    # Random traffic
-    random_parser = subparsers.add_parser("random", help="Generate random traffic")
-    random_parser.add_argument("--duration", type=int, default=60, help="Duration in seconds")
-    random_parser.add_argument("--min-interval", type=float, default=0.1, help="Minimum interval between requests")
-    random_parser.add_argument("--max-interval", type=float, default=2.0, help="Maximum interval between requests")
+    parser = argparse.ArgumentParser(description="FastAPI Prometheus Metrics Traffic Generator")
+    parser.add_argument("--url", default="http://localhost:8000", help="Base URL of the FastAPI application")
+    parser.add_argument("--duration", type=int, default=5, help="Duration in minutes to generate traffic")
     
     args = parser.parse_args()
     
-    if not args.mode:
-        parser.print_help()
-        return
+    print("=" * 60)
+    print("FastAPI Prometheus Metrics Traffic Generator")
+    print("=" * 60)
+    print(f"Target URL: {args.url}")
+    print(f"⏱️  Duration: {args.duration} minutes")
+    print("=" * 60)
     
     async with TrafficGenerator(args.url) as generator:
-        if args.mode == "steady":
-            await generator.generate_steady_traffic(args.duration, args.rate)
-        elif args.mode == "burst":
-            await generator.generate_burst_traffic(args.bursts, args.size, args.interval)
-        elif args.mode == "random":
-            await generator.generate_random_traffic(args.duration, args.min_interval, args.max_interval)
+        # Test connection first
+        result = await generator.make_request("GET", "/health")
+        if not result["success"]:
+            print(f"ERROR: Cannot connect to {args.url}. Please ensure the FastAPI application is running.")
+            return
+        
+        print(f"Successfully connected to {args.url}")
+        await generator.generate_mixed_traffic(args.duration)
 
 
 if __name__ == "__main__":
@@ -175,4 +212,5 @@ if __name__ == "__main__":
         print("\nTraffic generation stopped by user")
     except Exception as e:
         print(f"Error: {e}")
+        import sys
         sys.exit(1)
