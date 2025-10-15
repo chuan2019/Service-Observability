@@ -62,14 +62,14 @@ The application is split into the following microservices:
 - **Services Health**: http://localhost:8000/health/services
 
 #### Individual Services
-All services are accessible through the API Gateway at `/api/v1/{service}/` or directly:
+All services are accessible through the API Gateway at `/api/{service}/` or directly:
 
-- **Users**: http://localhost:8000/api/v1/users or http://localhost:8001/users
-- **Products**: http://localhost:8000/api/v1/products or http://localhost:8002/products
-- **Inventory**: http://localhost:8000/api/v1/inventory or http://localhost:8003/inventory
-- **Orders**: http://localhost:8000/api/v1/orders or http://localhost:8004/orders
-- **Payments**: http://localhost:8000/api/v1/payments or http://localhost:8005/payments
-- **Notifications**: http://localhost:8000/api/v1/notifications or http://localhost:8006/notifications
+- **Users**: http://localhost:8000/api/users or http://localhost:8001/users
+- **Products**: http://localhost:8000/api/products or http://localhost:8002/products
+- **Inventory**: http://localhost:8000/api/inventory or http://localhost:8003/inventory
+- **Orders**: http://localhost:8000/api/orders or http://localhost:8004/orders
+- **Payments**: http://localhost:8000/api/payments or http://localhost:8005/payments
+- **Notifications**: http://localhost:8000/api/notifications or http://localhost:8006/notifications
 
 #### Monitoring
 - **Prometheus**: http://localhost:9090
