@@ -74,6 +74,8 @@ All services are accessible through the API Gateway at `/api/{service}/` or dire
 #### Monitoring
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3000 (admin/admin123)
+<img width="1901" height="898" alt="image" src="https://github.com/user-attachments/assets/66fd39aa-4549-48ce-ae32-d9def1acd129" />
+<img width="1909" height="835" alt="image" src="https://github.com/user-attachments/assets/212181e7-7caf-4ff1-9ae3-3c1f11a6dd94" />
 
 ## API Examples
 
