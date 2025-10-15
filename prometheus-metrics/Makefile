@@ -115,102 +115,81 @@ traffic-stop:  ## Stop any running traffic generation
 
 monitor:  ## Show real-time metrics dashboard
 	@echo "Starting real-time metrics monitor (Ctrl+C to stop)..."
-	@uv run python scripts/monitor_metrics.py
+	@echo "Note: This requires the monitor_metrics.py script"
+	@if [ -f scripts/monitor_metrics.py ]; then \
+		uv run python scripts/monitor_metrics.py; \
+	else \
+		echo "Error: scripts/monitor_metrics.py not found"; \
+		echo "Using simple monitoring instead..."; \
+		$(MAKE) monitor-simple; \
+	fi
 
 monitor-once:  ## Show current metrics once
 	@echo "Fetching current metrics..."
-	@uv run python scripts/monitor_metrics.py --once
+	@if [ -f scripts/monitor_metrics.py ]; then \
+		uv run python scripts/monitor_metrics.py --once; \
+	else \
+		$(MAKE) monitor-simple; \
+	fi
 
 monitor-simple:  ## Show simple metrics summary using curl
-	@echo "=== Application Health ==="
-	@curl -s http://localhost:8000/health/ | uv run python -m json.tool 2>/dev/null || echo "App not responding"
-	@echo "\n=== Request Metrics (last 20 lines) ==="
-	@curl -s http://localhost:8000/metrics | grep -E "(http_requests_total|http_request_duration)" | tail -20
-	@echo "\n=== Custom Metrics ==="
-	@curl -s http://localhost:8000/metrics | grep -E "(business_metric|user_active)" | tail -10
+	@echo "=== Microservices Health ==="
+	@curl -s http://localhost:8000/health/services 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "Services health check not available"
+	@echo ""
+	@echo "=== API Gateway Health ==="
+	@curl -s http://localhost:8000/health 2>/dev/null || echo "API Gateway not responding"
+	@echo ""
+	@echo "=== User Service Metrics Sample ==="
+	@curl -s http://localhost:8001/metrics 2>/dev/null | grep -E "^(http_requests_total|http_request_duration|user_service)" | head -10 || echo "User service metrics not available"
+	@echo ""
+	@echo "=== Product Service Metrics Sample ==="
+	@curl -s http://localhost:8002/metrics 2>/dev/null | grep -E "^(http_requests_total|http_request_duration|product_service)" | head -10 || echo "Product service metrics not available"
+	@echo ""
+	@echo "=== Prometheus Status ==="
+	@curl -s http://localhost:9090/-/healthy 2>/dev/null && echo "Prometheus: healthy" || echo "Prometheus: not available"
+	@echo ""
+	@echo "=== Grafana Status ==="
+	@curl -s http://localhost:3000/api/health 2>/dev/null | python3 -m json.tool 2>/dev/null || echo "Grafana: not available"
 
 dashboard:  ## Open monitoring dashboards in browser
 	@echo "Opening monitoring dashboards..."
-	@echo "FastAPI App: http://localhost:8000"
-	@echo "Prometheus:  http://localhost:9090"
-	@echo "Grafana:     http://localhost:3000 (admin/admin)"
-	@if command -v xdg-open > /dev/null; then \
-		xdg-open http://localhost:8000 & \
-		xdg-open http://localhost:9090 & \
-		xdg-open http://localhost:3000 & \
-	elif command -v open > /dev/null; then \
-		open http://localhost:8000 & \
-		open http://localhost:9090 & \
-		open http://localhost:3000 & \
+	@echo ""
+	@echo "Available URLs:"
+	@echo "  API Gateway:  http://localhost:8000"
+	@echo "  User Service: http://localhost:8001"
+	@echo "  Prometheus:   http://localhost:9090"
+	@echo "  Grafana:      http://localhost:3000 (admin/admin123)"
+	@echo ""
+	@if command -v xdg-open > /dev/null 2>&1; then \
+		xdg-open http://localhost:8000 2>/dev/null & \
+		xdg-open http://localhost:9090 2>/dev/null & \
+		xdg-open http://localhost:3000 2>/dev/null & \
+		echo "Dashboards opened in browser"; \
+	elif command -v open > /dev/null 2>&1; then \
+		open http://localhost:8000 2>/dev/null & \
+		open http://localhost:9090 2>/dev/null & \
+		open http://localhost:3000 2>/dev/null & \
+		echo "Dashboards opened in browser"; \
 	else \
-		echo "Please manually open the URLs above in your browser"; \
+		echo "Could not auto-open browser. Please manually open the URLs above."; \
 	fi
 
 prometheus:  ## Open Prometheus dashboard
 	@echo "Opening Prometheus at http://localhost:9090"
-	@if command -v xdg-open > /dev/null; then xdg-open http://localhost:9090; \
-	elif command -v open > /dev/null; then open http://localhost:9090; \
-	else echo "Please open http://localhost:9090 in your browser"; fi
+	@if command -v xdg-open > /dev/null 2>&1; then \
+		xdg-open http://localhost:9090 2>/dev/null; \
+	elif command -v open > /dev/null 2>&1; then \
+		open http://localhost:9090 2>/dev/null; \
+	else \
+		echo "Please open http://localhost:9090 in your browser"; \
+	fi
 
 grafana:  ## Open Grafana dashboard
-	@echo "Opening Grafana at http://localhost:3000 (admin/admin)"
-	@if command -v xdg-open > /dev/null; then xdg-open http://localhost:3000; \
-	elif command -v open > /dev/null; then open http://localhost:3000; \
-	else echo "Please open http://localhost:3000 in your browser"; fi
-
-# =============================================================================
-# MAINTENANCE AND UTILITIES
-# =============================================================================
-
-backup:  ## Backup Grafana dashboards and Prometheus data
-	@echo "Creating backup..."
-	@mkdir -p backups/$$(date +%Y%m%d_%H%M%S)
-	@docker-compose exec -T grafana tar czf - /var/lib/grafana > backups/$$(date +%Y%m%d_%H%M%S)/grafana_backup.tar.gz 2>/dev/null || echo "Grafana backup failed"
-	@docker-compose exec -T prometheus tar czf - /prometheus > backups/$$(date +%Y%m%d_%H%M%S)/prometheus_backup.tar.gz 2>/dev/null || echo "Prometheus backup failed"
-	@echo "Backup completed in backups/ directory"
-
-restore:  ## Restore from backup (specify BACKUP_DIR=backups/YYYYMMDD_HHMMSS)
-	@if [ -z "$(BACKUP_DIR)" ]; then \
-		echo "Usage: make restore BACKUP_DIR=backups/YYYYMMDD_HHMMSS"; \
-		echo "Available backups:"; \
-		ls -la backups/ 2>/dev/null || echo "No backups found"; \
-		exit 1; \
+	@echo "Opening Grafana at http://localhost:3000 (admin/admin123)"
+	@if command -v xdg-open > /dev/null 2>&1; then \
+		xdg-open http://localhost:3000 2>/dev/null; \
+	elif command -v open > /dev/null 2>&1; then \
+		open http://localhost:3000 2>/dev/null; \
+	else \
+		echo "Please open http://localhost:3000 in your browser"; \
 	fi
-	@echo "Restoring from $(BACKUP_DIR)..."
-	@docker-compose down
-	@docker-compose up -d
-	@echo "Restore completed!"
-
-cleanup:  ## Clean up Docker resources (containers, images, volumes)
-	@echo "Cleaning up Docker resources..."
-	@docker-compose down -v --rmi all --remove-orphans 2>/dev/null || true
-	@docker system prune -f
-	@echo "Cleanup completed!"
-
-reset:  ## Reset everything (stop, cleanup, rebuild, start)
-	@echo "Performing full reset..."
-	@make stop
-	@make cleanup
-	@make start
-	@echo "Reset completed!"
-
-# =============================================================================
-# COMPREHENSIVE SETUP COMMANDS
-# =============================================================================
-
-full-setup: setup-env uv-init start  ## Complete setup and start everything
-	@echo "=== FULL SETUP COMPLETED ==="
-	@echo "Your FastAPI Prometheus monitoring stack is ready!"
-	@echo ""
-	@echo "Available endpoints:"
-	@echo "  Application:  http://localhost:8000"
-	@echo "  Health Check: http://localhost:8000/health/"
-	@echo "  Metrics:      http://localhost:8000/metrics"
-	@echo "  Prometheus:   http://localhost:9090"
-	@echo "  Grafana:      http://localhost:3000 (admin/admin)"
-	@echo ""
-	@echo "Try these commands:"
-	@echo "  make traffic-light    # Generate some test traffic"
-	@echo "  make monitor          # View current metrics"
-	@echo "  make dashboard        # Open all dashboards"
-	@echo "  make logs             # View application logs"
