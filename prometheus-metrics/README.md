@@ -1,549 +1,264 @@
-# E-Commerce Microservices with Prometheus & Grafana
+# E-commerce Microservices with Docker
 
-This project demonstrates a complete e-commerce microservices architecture built with FastAPI, featuring comprehensive Prometheus metrics integration and Grafana dashboards for monitoring and observability.
+This project demonstrates a complete microservices architecture for an e-commerce platform using FastAPI, Docker, PostgreSQL, Prometheus, and Grafana.
 
-## Example Workflows
+## Architecture Overview
 
-The application implements a realistic e-commerce system with the following microservices:
+The application is split into the following microservices:
 
-### Setup
-1. **User Service** - User management and authentication
-2. **Product Service** - Product catalog and search
-3. **Inventory Service** - Stock management and reservations
-4. **Order Service** - Order orchestration and workflow
-5. **Payment Service** - Payment processing and refunds
-6. **Notification Service** - Email notifications and alerts
-
-### Key Features
-- **Database-backed operations** with SQLAlchemy and SQLite
-- **Real inter-service communication** with proper orchestration
-- **Comprehensive Prometheus metrics** for each microservice
-- **RESTful API endpoints** with OpenAPI documentation
-- **Pydantic data validation** and serialization
-- **Async/await** throughout for high performance
-- **Error handling** and proper HTTP status codes
-- **Complete order workflow** demonstrating all services
-
-## Prerequisites
-
-- [uv](https://docs.astral.sh/uv/) - Fast Python package manager and project manager
-- Docker and Docker Compose (for containerized deployment)
-
-## Quick Start
-
-```bash
-# Complete setup and start everything
-make full-setup
-
-# Generate test traffic
-make traffic-light
-
-# Monitor metrics in real-time
-make monitor
-
-# Open all dashboards
-make dashboard
-```
+- **API Gateway** (Port 8000): Routes requests to appropriate microservices
+- **User Service** (Port 8001): User management and authentication
+- **Product Service** (Port 8002): Product catalog management
+- **Inventory Service** (Port 8003): Stock management and reservations
+- **Order Service** (Port 8004): Order orchestration and workflow
+- **Payment Service** (Port 8005): Payment processing
+- **Notification Service** (Port 8006): Notification and messaging
+- **PostgreSQL Database**: Shared database for all services
+- **Prometheus** (Port 9090): Metrics collection
+- **Grafana** (Port 3000): Metrics visualization
 
 ## Features
 
-- **Microservices Architecture** with User, Order, and Payment services
-- **FastAPI Application** with comprehensive REST API endpoints
-- **Prometheus Metrics** integration with custom middleware
-- **Service-Specific Metrics** for each microservice with detailed tracking
-- **Cross-Service Operations** demonstrating distributed system patterns
-- **Health Checks** for Kubernetes readiness/liveness probes
-- **Custom Business Metrics** for application-specific monitoring
-- **Docker Support** with docker-compose for easy deployment
-- **Grafana Integration** for metrics visualization
-- **Realistic Traffic Generation** with Python scripts for all services
-- **Demo Endpoints** showcasing full application workflows
-- **Real-time Monitoring Dashboard** 
-- **Comprehensive Make Commands** for operations
-- **Unit Tests** with pytest
-- **Comprehensive Documentation**
-
-## Microservices Architecture
-
-This application demonstrates a microservices architecture with three main services:
-
-### User Service (`/api/v1/users`)
-- User registration, retrieval, updates, and deletion
-- User validation for cross-service operations
-- Metrics: active users, database queries, operation latency
-
-### Order Service (`/api/v1/orders`)  
-- Order creation, processing, and status management
-- Order cancellation and fulfillment workflows
-- Cross-service validation with User Service
-- Metrics: order values, status transitions, processing times
-
-### Payment Service (`/api/v1/payments`)
-- Payment processing with multiple payment methods
-- Payment gateway integration simulation
-- Refund processing capabilities
-- Cross-service validation with Order Service  
-- Metrics: payment amounts, gateway calls, failure reasons
-
-### Demo Service (`/api/v1/demo`)
-- Full workflow demonstrations (user → order → payment)
-- User journey simulations
-- Stress testing endpoints
-- Metrics generation for testing purposes
-
-## Project Structure
-
-```
-metrics_01/
-├── app/
-│   ├── __init__.py
-│   ├── main.py                    # FastAPI application entry point
-│   ├── core/
-│   │   ├── __init__.py
-│   │   └── config.py              # Application configuration
-│   ├── middleware/
-│   │   ├── __init__.py
-│   │   └── metrics.py             # Prometheus metrics middleware
-│   ├── routers/
-│   │   ├── __init__.py
-│   │   ├── health.py              # Health check endpoints
-│   │   ├── api.py                 # Main API endpoints
-│   │   ├── users.py               # User management endpoints
-│   │   ├── orders.py              # Order management endpoints
-│   │   ├── payments.py            # Payment processing endpoints
-│   │   └── demo.py                # Demo and testing endpoints
-│   └── services/
-│       ├── __init__.py
-│       ├── metrics_service.py     # Custom metrics service
-│       ├── user_service.py        # User business logic with metrics
-│       ├── order_service.py       # Order business logic with metrics
-│       └── payment_service.py     # Payment business logic with metrics
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py               # Test configuration
-│   ├── test_health.py            # Health endpoint tests
-│   └── test_metrics.py           # Metrics tests
-├── config/
-│   ├── prometheus.yml            # Prometheus configuration
-│   └── grafana/
-│       ├── datasources/
-│       │   └── prometheus.yml
-│       └── dashboards/
-│           └── dashboard.yml
-├── docker/
-│   └── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── pyproject.toml
-├── .env.example
-└── README.md
-```
-
-## Metrics Overview
-
-### HTTP Metrics
-- `http_requests_total` - Total HTTP requests by method, endpoint, and status code
-- `http_request_duration_seconds` - HTTP request duration histogram
-- `http_request_size_bytes` - HTTP request size histogram
-- `http_response_size_bytes` - HTTP response size histogram
-- `http_requests_active` - Number of active HTTP requests
-
-### Business Metrics
-
-#### User Service Metrics
-- `user_service_operations_total` - User operations by type and status
-- `user_service_operation_duration_seconds` - User operation duration
-- `user_service_active_users` - Number of active users
-- `user_service_db_queries_total` - Database queries by type and status
-
-#### Order Service Metrics  
-- `order_service_operations_total` - Order operations by type and status
-- `order_service_operation_duration_seconds` - Order operation duration
-- `order_service_active_orders` - Number of active orders
-- `order_service_order_value` - Order value distribution by type
-- `order_service_items_per_order` - Items per order distribution
-- `order_service_status_changes_total` - Order status transitions
-
-#### Payment Service Metrics
-- `payment_service_operations_total` - Payment operations by type and status
-- `payment_service_operation_duration_seconds` - Payment operation duration  
-- `payment_service_amount` - Payment amounts by method and status
-- `payment_service_gateway_calls_total` - Gateway calls by provider and status
-- `payment_service_failed_payments_total` - Failed payments by reason
-- `payment_service_processing_queue` - Payments in processing queue
-
-#### Application-Level Metrics
-- `api_errors_total` - API errors by endpoint and error type
+- **True Microservices Architecture**: Each service runs in its own Docker container
+- **Database-backed operations** with PostgreSQL and async SQLAlchemy
+- **API Gateway** for request routing and load balancing
+- **Inter-service communication** via HTTP APIs
+- **Comprehensive Prometheus metrics** for each microservice
+- **Service discovery** and health checking
+- **Centralized logging** and monitoring
+- **Production-ready** Docker configuration
 
 ## Quick Start
 
-### Local Development
+### Prerequisites
 
-1. **Clone and navigate to the project:**
-   ```bash
-   cd /path/to/metrics_01
-   ```
+- Docker and Docker Compose installed
+- At least 4GB RAM available for containers
+- Ports 8000-8006, 3000, 5432, and 9090 available
 
-2. **Set up development environment with uv:**
-   ```bash
-   # Initialize uv virtual environment and install dependencies
-   make dev-setup
-
-   # Or manually:
-   uv venv
-   uv sync --all-extras
-   ```
-
-3. **Run the application:**
-   ```bash
-   # Using make (recommended)
-   make run-dev
-
-   # Or directly with uv
-   uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-5. **Access the application:**
-   - API Documentation: http://localhost:8000/docs
-   - Health Check: http://localhost:8000/health/
-   - Metrics: http://localhost:8000/metrics
-
-## Make Commands
-
-This project includes comprehensive Make commands for easy operations. See [MAKEFILE_COMMANDS.md](docs/MAKEFILE_COMMANDS.md) for detailed documentation.
-
-### Essential Commands
-
-```bash
-# Complete setup and start everything
-make full-setup
-
-# Test individual microservices
-make test-users      # Test user service endpoints
-make test-orders     # Test order service endpoints  
-make test-payments   # Test payment service endpoints
-make test-demo       # Test demo endpoints
-make test-all-endpoints  # Test all services
-
-# Generate realistic traffic
-make traffic-realistic   # 5-minute realistic traffic
-make traffic-extended    # 15-minute extended traffic
-
-# Docker operations
-make start          # Start all services
-make stop           # Stop all services
-make restart        # Restart all services
-make status         # Show container status
-make logs           # View all logs
-
-# Traffic generation
-make traffic-light  # Light traffic (1 req/sec)
-make traffic-medium # Medium traffic (5 req/sec)
-make traffic-heavy  # Heavy concurrent traffic
-make traffic-burst  # Burst traffic patterns
-
-# Monitoring
-make monitor        # Real-time metrics dashboard
-make monitor-once   # One-time metrics check
-make dashboard      # Open all dashboards
-
-# Development
-make test           # Run tests
-make format         # Format code
-make lint           # Run linting
-make check          # All quality checks
-
-# UV Environment Management
-make uv-init        # Initialize uv environment
-make uv-sync        # Sync dependencies
-make uv-lock        # Update lockfile
-
-# Maintenance
-make backup         # Backup data
-make cleanup        # Clean Docker resources
-make reset          # Full reset
-```
-
-Use `make help` to see all available commands.
-
-### Docker Deployment
+### Running the Microservices
 
 1. **Start all services:**
    ```bash
-   docker-compose up -d
+   ./start-microservices.sh
    ```
 
-2. **Access services:**
-   - FastAPI App: http://localhost:8000
-   - Prometheus: http://localhost:9090
-   - Grafana: http://localhost:3000 (admin/admin123)
+2. **Or manually with docker-compose:**
+   ```bash
+   docker-compose -f docker-compose.microservices.yml up --build -d
+   ```
 
-## API Endpoints
+3. **Check service health:**
+   ```bash
+   curl http://localhost:8000/health/services
+   ```
 
-### Health Endpoints
-- `GET /health/` - Basic health check
-- `GET /health/ready` - Readiness probe for Kubernetes
-- `GET /health/live` - Liveness probe for Kubernetes
+### Available Endpoints
 
-### User Service (`/api/v1/users`)
+#### API Gateway (Main Entry Point)
+- **API Documentation**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
+- **Services Health**: http://localhost:8000/health/services
+
+#### Individual Services
+All services are accessible through the API Gateway at `/api/v1/{service}/` or directly:
+
+- **Users**: http://localhost:8000/api/v1/users or http://localhost:8001/users
+- **Products**: http://localhost:8000/api/v1/products or http://localhost:8002/products
+- **Inventory**: http://localhost:8000/api/v1/inventory or http://localhost:8003/inventory
+- **Orders**: http://localhost:8000/api/v1/orders or http://localhost:8004/orders
+- **Payments**: http://localhost:8000/api/v1/payments or http://localhost:8005/payments
+- **Notifications**: http://localhost:8000/api/v1/notifications or http://localhost:8006/notifications
+
+#### Monitoring
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (admin/admin123)
+
+## API Examples
+
+### Create a User
 ```bash
-# Create a user
-curl -X POST http://localhost:8000/api/v1/users \
+curl -X POST "http://localhost:8000/api/v1/users" \
   -H "Content-Type: application/json" \
-  -d '{"name": "John Doe", "email": "john@example.com", "status": "active"}'
-
-# Get all users
-curl http://localhost:8000/api/v1/users
-
-# Get user by ID
-curl http://localhost:8000/api/v1/users/1
-
-# Update user
-curl -X PUT http://localhost:8000/api/v1/users/1 \
-  -H "Content-Type: application/json" \
-  -d '{"name": "John Updated", "status": "inactive"}'
-
-# Delete user
-curl -X DELETE http://localhost:8000/api/v1/users/1
+  -d '{
+    "email": "john@example.com",
+    "name": "John Doe",
+    "address": "123 Main St",
+    "phone": "+1234567890"
+  }'
 ```
 
-### Order Service (`/api/v1/orders`)
+### Create a Product
 ```bash
-# Create an order
-curl -X POST http://localhost:8000/api/v1/orders \
+curl -X POST "http://localhost:8000/api/v1/products" \
   -H "Content-Type: application/json" \
-  -d '{"user_id": 1, "amount": 99.99, "items": ["item1", "item2"], "type": "express"}'
-
-# Get all orders
-curl http://localhost:8000/api/v1/orders
-
-# Get order by ID
-curl http://localhost:8000/api/v1/orders/101
-
-# Process order
-curl -X POST http://localhost:8000/api/v1/orders/101/process
-
-# Cancel order
-curl -X POST http://localhost:8000/api/v1/orders/101/cancel?reason=user_requested
-
-# Get orders by user
-curl http://localhost:8000/api/v1/orders/user/1
+  -d '{
+    "name": "Laptop",
+    "description": "High-performance laptop",
+    "price": 999.99,
+    "category": "Electronics",
+    "sku": "LAP001"
+  }'
 ```
 
-### Payment Service (`/api/v1/payments`)
+### Create an Order
 ```bash
-# Process a payment
-curl -X POST http://localhost:8000/api/v1/payments \
+curl -X POST "http://localhost:8000/api/v1/orders" \
   -H "Content-Type: application/json" \
-  -d '{"order_id": 101, "amount": 99.99, "method": "credit_card"}'
-
-# Get payment by ID
-curl http://localhost:8000/api/v1/payments/1001
-
-# Get payments for order
-curl http://localhost:8000/api/v1/payments/order/101
-
-# Refund payment
-curl -X POST http://localhost:8000/api/v1/payments/1001/refund \
-  -H "Content-Type: application/json" \
-  -d '{"amount": 50.00, "reason": "defective_product"}'
+  -d '{
+    "user_id": 1,
+    "items": [
+      {
+        "product_id": 1,
+        "quantity": 2,
+        "unit_price": 999.99
+      }
+    ]
+  }'
 ```
-
-### Demo Service (`/api/v1/demo`)
-```bash
-# Run full flow demo (user → order → payment)
-curl http://localhost:8000/api/v1/demo/full-flow/1
-
-# Simulate complete user journey
-curl -X POST http://localhost:8000/api/v1/demo/simulate-user-journey
-
-# Run stress test
-curl http://localhost:8000/api/v1/demo/stress-test
-```
-
-### Metrics Endpoint
-- `GET /metrics` - Prometheus metrics in text format
-
-## Testing
-
-Run the test suite:
-
-```bash
-# Install test dependencies
-pip install pytest pytest-asyncio httpx
-
-# Run tests
-pytest
-
-# Run tests with coverage
-pytest --cov=app --cov-report=html
-```
-
-## Monitoring Setup
-
-### Prometheus Queries
-
-Some useful Prometheus queries for monitoring:
-
-```promql
-# Request rate
-rate(http_requests_total[5m])
-
-# Error rate
-rate(http_requests_total{status_code=~"4..|5.."}[5m])
-
-# Response time percentiles
-histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
-
-# Active requests
-http_requests_active
-
-# Business metrics
-rate(user_operations_total[5m])
-```
-
-### Grafana Dashboard
-
-The included Grafana configuration provides:
-- HTTP request metrics visualization
-- Error rate monitoring
-- Response time percentiles
-- Custom business metrics
-- System resource usage
-
-## Configuration
-
-### Environment Variables
-
-Key environment variables (see `.env.example`):
-
-- `PROJECT_NAME` - Application name
-- `ENVIRONMENT` - Environment (development/production)
-- `HOST` - Server host (default: 0.0.0.0)
-- `PORT` - Server port (default: 8000)
-- `LOG_LEVEL` - Logging level (default: INFO)
-- `METRICS_ENABLED` - Enable/disable metrics collection
-
-### Prometheus Configuration
-
-The `config/prometheus.yml` file defines:
-- Scrape intervals
-- Target endpoints
-- Metric collection rules
 
 ## Development
 
-### Code Quality
-
-The project includes configuration for:
-- **Black** for code formatting
-- **isort** for import sorting
-- **flake8** for linting
-- **pytest** for testing
-
-Run quality checks:
-```bash
-# Format code
-black app/ tests/
-
-# Sort imports
-isort app/ tests/
-
-# Lint code
-flake8 app/ tests/
-
-# Run tests
-pytest
+### Project Structure
+```
+microservices/
+├── shared/                 # Shared modules and configurations
+│   ├── config.py          # Service configurations
+│   ├── database.py        # Database connection management
+│   ├── models.py          # SQLAlchemy models
+│   └── schemas.py         # Pydantic schemas
+├── api-gateway/           # API Gateway service
+├── user-service/          # User management service
+├── product-service/       # Product catalog service
+├── inventory-service/     # Inventory management service
+├── order-service/         # Order orchestration service
+├── payment-service/       # Payment processing service
+└── notification-service/  # Notification service
 ```
 
-### Adding Custom Metrics
+### Adding a New Service
 
-To add custom metrics:
+1. Create a new directory under `microservices/`
+2. Create `main.py`, `requirements.txt`, and `Dockerfile`
+3. Add service configuration to `shared/config.py`
+4. Update `docker-compose.microservices.yml`
+5. Add routing to API Gateway
 
-1. Define metrics in `app/services/metrics_service.py`
-2. Use the metrics service in your endpoints
-3. Update tests to verify metrics collection
+### Environment Variables
 
-Example:
-```python
-from app.services.metrics_service import MetricsService
+Each service can be configured using environment variables:
 
-metrics_service = MetricsService()
+- `ENVIRONMENT`: development/production
+- `DATABASE_URL`: PostgreSQL connection string
+- `LOG_LEVEL`: Logging level
+- `*_SERVICE_URL`: URLs for inter-service communication
 
-# In your endpoint
-@router.get("/my-endpoint")
-async def my_endpoint():
-    metrics_service.increment_counter("my_custom_metric")
-    return {"message": "Hello"}
-```
+## Monitoring and Metrics
+
+### Prometheus Metrics
+
+Each service exposes metrics at `/metrics`:
+
+- **HTTP Request Metrics**: Request count, duration, status codes
+- **Database Metrics**: Query performance, connection pool status
+- **Business Metrics**: User count, order values, inventory levels
+- **Service Health**: Uptime, error rates
+
+### Grafana Dashboards
+
+Pre-configured dashboards for:
+- Service overview and health
+- Request latency and throughput
+- Database performance
+- Business metrics
 
 ## Production Considerations
 
-### Security
-- Remove debug endpoints in production
-- Use proper authentication/authorization
-- Secure metrics endpoint access
-- Use HTTPS
-
-### Performance
-- Configure appropriate scrape intervals
-- Monitor metrics cardinality
-- Use metric aggregation for high-volume metrics
-- Configure proper retention policies
-
 ### Scaling
-- Use external metrics storage (e.g., Prometheus with external storage)
-- Consider metrics federation for multi-instance deployments
-- Implement proper service discovery
+
+Scale individual services:
+```bash
+docker-compose -f docker-compose.microservices.yml up --scale user-service=3
+```
+
+### Load Balancing
+
+The API Gateway handles load balancing. For production, consider:
+- NGINX or HAProxy in front of API Gateway
+- Multiple API Gateway instances
+- Service mesh (Istio, Linkerd)
+
+### Security
+
+- Add authentication/authorization middleware
+- Use HTTPS in production
+- Implement rate limiting
+- Network segmentation with Docker networks
+
+### Database
+
+- Use separate databases per service for true microservices
+- Implement database migrations
+- Add database monitoring and backups
+- Consider read replicas for scaling
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Metrics not appearing:**
-   - Check if middleware is properly installed
-   - Verify Prometheus scrape configuration
-   - Check application logs
+1. **Port conflicts**: Ensure ports 8000-8006, 3000, 5432, 9090 are available
+2. **Memory issues**: Increase Docker memory allocation
+3. **Service startup order**: Services depend on PostgreSQL being healthy
 
-2. **High memory usage:**
-   - Monitor metrics cardinality
-   - Implement metric cleanup
-   - Configure proper retention
+### Logs
 
-3. **Performance impact:**
-   - Adjust scrape intervals
-   - Use sampling for high-volume metrics
-   - Monitor middleware overhead
-
-### Debugging
-
-Enable debug logging:
+View logs for specific services:
 ```bash
-export LOG_LEVEL=DEBUG
-python -m app.main
+# All services
+docker-compose -f docker-compose.microservices.yml logs -f
+
+# Specific service
+docker-compose -f docker-compose.microservices.yml logs -f user-service
+
+# Follow logs in real-time
+docker-compose -f docker-compose.microservices.yml logs -f --tail=100
 ```
 
-Check metrics format:
+### Health Checks
+
+Check individual service health:
 ```bash
-curl http://localhost:8000/metrics
+curl http://localhost:8001/health  # User service
+curl http://localhost:8002/health  # Product service
+# ... etc
 ```
+
+## Stopping Services
+
+```bash
+# Stop all services
+docker-compose -f docker-compose.microservices.yml down
+
+# Stop and remove volumes (clears database)
+docker-compose -f docker-compose.microservices.yml down -v
+
+# Stop and remove images
+docker-compose -f docker-compose.microservices.yml down --rmi all
+```
+
+## Migration from Monolith
+
+The original monolithic application is still available in the `app/` directory. To migrate:
+
+1. Both architectures share the same database schema
+2. The API Gateway provides the same endpoints as the monolith
+3. Metrics are collected from all services
+4. Business logic remains the same, just distributed
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Run quality checks
-6. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Resources
-
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Prometheus Documentation](https://prometheus.io/docs/)
-- [Grafana Documentation](https://grafana.com/docs/)
-- [Prometheus Python Client](https://github.com/prometheus/client_python)
+1. Follow the existing service structure
+2. Add comprehensive tests for new services
+3. Update documentation
+4. Ensure all services have proper health checks
+5. Add appropriate metrics and logging

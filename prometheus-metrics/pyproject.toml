@@ -35,6 +35,8 @@ dependencies = [
     "alembic>=1.13.0",
     "aiosqlite>=0.19.0",
     "httpx>=0.25.0",
+    "flake8>=7.1.2",
+    "aiohttp>=3.10.11",
 ]
 
 [project.optional-dependencies]
@@ -66,7 +68,7 @@ metrics-app = "app.main:app"
 packages = ["app"]
 
 [tool.black]
-line-length = 100
+line-length = 120
 target-version = ['py38']
 include = '\.pyi?$'
 extend-exclude = '''
@@ -86,10 +88,14 @@ extend-exclude = '''
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-line_length = 100
+line_length = 120
 known_first_party = ["app"]
 
+[tool.flake8]
+max-line-length = 120
+
 [tool.pytest.ini_options]
+flake8-max-line-length = 120
 minversion = "7.0"
 addopts = "-ra -q --strict-markers"
 testpaths = [

@@ -1,1 +1,1 @@
-# Test files module
+"""Test package for microservices."""

@@ -3,20 +3,23 @@
 
 import asyncio
 import aiohttp
-import json
+import argparse
 import random
 import time
-from typing import List, Dict
+from typing import Dict
 
 # API endpoints
 BASE_URL = "http://localhost:8000"
 ENDPOINTS = {
-    "users": "/api/v1/users/",
-    "products": "/api/v1/products/",
-    "products_search": "/api/v1/products/search",
+    "users": "/api/users",
+    "products": "/api/products",
+    "inventory": "/api/inventory",
+    "orders": "/api/orders",
+    "payments": "/api/payments",
+    "notifications": "/api/notifications",
     "health": "/health",
-    "metrics": "/metrics",
-    "complete_order": "/api/v1/demo/complete-order-flow"
+    "services_health": "/health/services",
+    "metrics": "/metrics"
 }
 
 # Sample data for testing
@@ -33,10 +36,10 @@ SAMPLE_PRODUCTS = [
     "YMP-006", "WPC-007", "RSU-008", "KKS-009", "PBS-010"
 ]
 
-SEARCH_TERMS = [
-    "bluetooth", "headphones", "watch", "coffee", "yoga",
-    "phone", "speaker", "bottle", "shoes", "knife"
-]
+SAMPLE_USER_IDS = [1, 2, 3, 4, 5]
+SAMPLE_PRODUCT_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+SAMPLE_ORDER_IDS = [1, 2, 3, 4, 5]
+SAMPLE_PAYMENT_IDS = [1, 2, 3, 4, 5]
 
 class LoadTester:
     def __init__(self, base_url: str = BASE_URL):
@@ -97,53 +100,88 @@ class LoadTester:
         url = f"{self.base_url}{ENDPOINTS['health']}"
         return await self.make_request("GET", url)
 
+    async def test_services_health(self) -> Dict:
+        """Test all services health check endpoint."""
+        url = f"{self.base_url}{ENDPOINTS['services_health']}"
+        return await self.make_request("GET", url)
+
     async def test_users_list(self) -> Dict:
         """Test users list endpoint."""
         url = f"{self.base_url}{ENDPOINTS['users']}"
-        params = {
-            "skip": random.randint(0, 2),
-            "limit": random.randint(3, 10)
-        }
-        return await self.make_request("GET", url, params=params)
+        return await self.make_request("GET", url)
+
+    async def test_user_get(self) -> Dict:
+        """Test get single user endpoint."""
+        user_id = random.choice(SAMPLE_USER_IDS)
+        url = f"{self.base_url}{ENDPOINTS['users']}/{user_id}"
+        return await self.make_request("GET", url)
 
     async def test_products_list(self) -> Dict:
         """Test products list endpoint."""
         url = f"{self.base_url}{ENDPOINTS['products']}"
-        params = {
-            "skip": random.randint(0, 3),
-            "size": random.randint(3, 8)
-        }
-        return await self.make_request("GET", url, params=params)
+        return await self.make_request("GET", url)
 
-    async def test_product_search(self) -> Dict:
-        """Test product search endpoint."""
-        url = f"{self.base_url}{ENDPOINTS['products_search']}"
-        params = {
-            "q": random.choice(SEARCH_TERMS),
-            "size": random.randint(3, 10)
-        }
-        return await self.make_request("GET", url, params=params)
+    async def test_product_get(self) -> Dict:
+        """Test get single product endpoint."""
+        product_id = random.choice(SAMPLE_PRODUCT_IDS)
+        url = f"{self.base_url}{ENDPOINTS['products']}/{product_id}"
+        return await self.make_request("GET", url)
 
-    async def test_complete_order_flow(self) -> Dict:
-        """Test complete order flow endpoint."""
-        url = f"{self.base_url}{ENDPOINTS['complete_order']}"
-        
-        # Random order data
-        num_items = random.randint(1, 3)
-        selected_skus = random.sample(SAMPLE_PRODUCTS, num_items)
-        quantities = [random.randint(1, 3) for _ in range(num_items)]
-        
-        order_data = {
-            "user_email": random.choice(SAMPLE_USERS),
-            "product_skus": selected_skus,
-            "quantities": quantities,
-            "payment_method": random.choice(["credit_card", "debit_card", "paypal"])
-        }
-        
-        headers = {"Content-Type": "application/json"}
-        data = json.dumps(order_data)
-        
-        return await self.make_request("POST", url, headers=headers, data=data)
+    async def test_inventory_list(self) -> Dict:
+        """Test inventory list endpoint."""
+        url = f"{self.base_url}{ENDPOINTS['inventory']}"
+        return await self.make_request("GET", url)
+
+    async def test_inventory_get(self) -> Dict:
+        """Test get inventory for specific product."""
+        product_id = random.choice(SAMPLE_PRODUCT_IDS)
+        url = f"{self.base_url}{ENDPOINTS['inventory']}/{product_id}"
+        return await self.make_request("GET", url)
+
+    async def test_orders_list(self) -> Dict:
+        """Test orders list endpoint."""
+        url = f"{self.base_url}{ENDPOINTS['orders']}"
+        return await self.make_request("GET", url)
+
+    async def test_order_get(self) -> Dict:
+        """Test get single order endpoint."""
+        order_id = random.choice(SAMPLE_ORDER_IDS)
+        url = f"{self.base_url}{ENDPOINTS['orders']}/{order_id}"
+        return await self.make_request("GET", url)
+
+    async def test_orders_by_user(self) -> Dict:
+        """Test get orders by user endpoint."""
+        user_id = random.choice(SAMPLE_USER_IDS)
+        url = f"{self.base_url}{ENDPOINTS['orders']}/user/{user_id}"
+        return await self.make_request("GET", url)
+
+    async def test_payments_list(self) -> Dict:
+        """Test payments list endpoint."""
+        url = f"{self.base_url}{ENDPOINTS['payments']}"
+        return await self.make_request("GET", url)
+
+    async def test_payment_get(self) -> Dict:
+        """Test get single payment endpoint."""
+        payment_id = random.choice(SAMPLE_PAYMENT_IDS)
+        url = f"{self.base_url}{ENDPOINTS['payments']}/{payment_id}"
+        return await self.make_request("GET", url)
+
+    async def test_notifications_list(self) -> Dict:
+        """Test notifications list endpoint."""
+        url = f"{self.base_url}{ENDPOINTS['notifications']}"
+        return await self.make_request("GET", url)
+
+    async def test_notification_get(self) -> Dict:
+        """Test get single notification endpoint."""
+        notification_id = random.randint(1, 10)
+        url = f"{self.base_url}{ENDPOINTS['notifications']}/{notification_id}"
+        return await self.make_request("GET", url)
+
+    async def test_notifications_by_user(self) -> Dict:
+        """Test get notifications by user endpoint."""
+        user_id = random.choice(SAMPLE_USER_IDS)
+        url = f"{self.base_url}{ENDPOINTS['notifications']}/user/{user_id}"
+        return await self.make_request("GET", url)
 
     async def run_mixed_load(self, duration: int = 60, concurrent_requests: int = 5):
         """Run mixed load test for specified duration."""
@@ -156,13 +194,24 @@ class LoadTester:
         
         async def worker():
             while time.time() - start_time < duration:
-                # Weighted random selection of test types
+                # Weighted random selection of test types for all services
                 test_weights = [
-                    (self.test_health_check, 10),    # 10% health checks
-                    (self.test_users_list, 25),      # 25% user requests
-                    (self.test_products_list, 30),   # 30% product lists
-                    (self.test_product_search, 25),  # 25% product searches
-                    (self.test_complete_order_flow, 10)  # 10% complete orders
+                    (self.test_health_check, 5),           # 5% health checks
+                    (self.test_services_health, 5),        # 5% services health
+                    (self.test_users_list, 10),            # 10% user list
+                    (self.test_user_get, 10),              # 10% user get
+                    (self.test_products_list, 10),         # 10% product list
+                    (self.test_product_get, 10),           # 10% product get
+                    (self.test_inventory_list, 8),         # 8% inventory list
+                    (self.test_inventory_get, 8),          # 8% inventory get
+                    (self.test_orders_list, 8),            # 8% orders list
+                    (self.test_order_get, 6),              # 6% order get
+                    (self.test_orders_by_user, 5),         # 5% orders by user
+                    (self.test_payments_list, 5),          # 5% payments list
+                    (self.test_payment_get, 5),            # 5% payment get
+                    (self.test_notifications_list, 3),     # 3% notifications list
+                    (self.test_notification_get, 1),       # 1% notification get
+                    (self.test_notifications_by_user, 1),  # 1% notifications by user
                 ]
                 
                 # Weighted random selection
@@ -223,10 +272,22 @@ async def main():
     """Main load testing function."""
     print("E-Commerce Microservices Load Tester")
     print("=" * 60)
-    
-    # Test configuration
-    duration = 60  # seconds
-    concurrent_requests = 5
+
+    parser = argparse.ArgumentParser(
+        description="Load testing script for e-commerce microservices API"
+    )
+    parser.add_argument(
+        "--duration", type=int, default=60,
+        help="Duration of the load test in seconds (default: 60)"
+    )
+    parser.add_argument(
+        "--concurrent-requests", type=int, default=5,
+        help="Number of concurrent requests to make (default: 5)"
+    )
+
+    args = parser.parse_args()
+    duration = args.duration
+    concurrent_requests = args.concurrent_requests
     
     try:
         async with LoadTester() as tester:

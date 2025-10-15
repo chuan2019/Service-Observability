@@ -11,11 +11,25 @@ help:  ## Show this help message
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-install:  ## Install production dependencies using uv
-	uv sync --no-dev
+start:  ## Start all microservices with Docker
+	./start-microservices.sh
 
-dev-install:  ## Install development dependencies using uv
-	uv sync --all-extras
+init-data:  ## Initialize sample data for microservices
+	python scripts/init_microservices_data.py
+
+restart:  ## Restart all microservices
+	@echo "Restarting all microservices..."
+	docker-compose -f docker-compose.microservices.yml down
+	docker-compose -f docker-compose.microservices.yml up -d
+	@echo "Microservices restarted!"
+
+status:  ## Show status of all containers
+	@echo "Container status:"
+	@docker-compose -f docker-compose.microservices.yml ps
+
+stop:  ## Stop all microservices
+	@echo "Stopping all microservices..."
+	docker-compose -f docker-compose.microservices.yml down
 
 clean:  ## Clean up cache and temporary files
 	find . -type f -name "*.pyc" -delete
@@ -23,153 +37,31 @@ clean:  ## Clean up cache and temporary files
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	rm -rf .coverage htmlcov/ .pytest_cache/
 
-uv-lock:  ## Update uv.lock file
-	uv lock
+logs:  ## View logs from all microservices
+	docker-compose -f docker-compose.microservices.yml logs -f
 
-uv-sync:  ## Sync dependencies with uv.lock
-	uv sync
+services-health:  ## Check health of all microservices
+	curl -s http://localhost:8000/health/services | python -m json.tool
 
-uv-init:  ## Initialize uv project and create virtual environment
-	uv venv --clear
-	uv sync --all-extras
 
-test:  ## Run all tests
-	uv run pytest -v
 
-test-coverage:  ## Run tests with coverage
-	uv run pytest --cov=app --cov-report=html --cov-report=term-missing
+# =============================================================================
+# TESTING AND QUALITY ASSURANCE
+# =============================================================================
 
-test-users:  ## Run user service tests only
-	uv run pytest tests/test_users.py -v
-
-test-orders:  ## Run order service tests only
-	uv run pytest tests/test_orders.py -v
-
-test-payments:  ## Run payment service tests only
-	uv run pytest tests/test_payments.py -v
-
-test-demo:  ## Run demo service tests only
-	uv run pytest tests/test_demo.py -v
-
-test-integration:  ## Run integration tests only
-	uv run pytest tests/test_integration.py -v
-
-test-metrics:  ## Run metrics tests only
-	uv run pytest tests/test_metrics.py -v
-
-test-services:  ## Run all service tests (users, orders, payments, demo)
-	uv run pytest tests/test_users.py tests/test_orders.py tests/test_payments.py tests/test_demo.py -v
-
-test-fast:  ## Run tests with minimal output
-	uv run pytest -q
-
-test-verbose:  ## Run tests with maximum verbosity
-	uv run pytest -vvv --tb=long
-
-lint:  ## Run linting
-	uv run flake8 app/ tests/
-
-format:  ## Format code
-	uv run black app/ tests/
-	uv run isort app/ tests/
-
-check:  ## Run all quality checks
+test:  ## Run all quality checks
 	@echo "Running format check..."
-	uv run black --check app/ tests/
+	uv run black --verbose  microservices/
 	@echo "Running import sort check..."
-	uv run isort --check-only app/ tests/
+	uv run isort --verbose  microservices/
 	@echo "Running linting..."
-	uv run flake8 app/ tests/
+	uv run flake8  microservices/
 	@echo "Running tests..."
-	uv run pytest
+	uv run pytest tests/ -vvv --tb=long
 
-run:  ## Run the application locally
-	uv run python -m app.main
-
-run-dev:  ## Run the application in development mode
-	uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-docker-build:  ## Build Docker image
-	docker build -f docker/Dockerfile -t fastapi-prometheus-metrics .
-
-docker-run:  ## Run Docker container
-	docker run -p 8000:8000 fastapi-prometheus-metrics
-
-docker-compose-up:  ## Start all services with docker-compose
-	docker-compose up -d
-
-docker-compose-down:  ## Stop all services
-	docker-compose down
-
-docker-compose-logs:  ## View logs from all services
-	docker-compose logs -f
-
-setup-env:  ## Copy example environment file
-	cp .env.example .env
-	@echo "Environment file created. Please edit .env as needed."
-
-install-hooks:  ## Install pre-commit hooks
-	@echo "Installing pre-commit hooks..."
-	echo "#!/bin/sh\nmake check" > .git/hooks/pre-commit
-	chmod +x .git/hooks/pre-commit
-	@echo "Pre-commit hooks installed!"
-
-metrics:  ## Show current metrics (requires running application)
-	@echo "Fetching metrics from http://localhost:8000/metrics"
-	@curl -s http://localhost:8000/metrics | head -20
-
-health:  ## Check application health
-	@echo "Checking application health..."
-	@curl -s http://localhost:8000/health/ | uv run python -m json.tool
-
-# Development workflow commands
-dev-setup: setup-env uv-init  ## Complete development setup
-	@echo "Development environment setup complete!"
-	@echo "Run 'make run-dev' to start the application."
-
-production-setup: install  ## Production setup
-	@echo "Production environment setup complete!"
-	@echo "Configure your .env file and run 'make run' to start."
-
-# =============================================================================
-# DOCKER OPERATIONS
-# =============================================================================
-
-start:  ## Start all services (alias for docker-compose-up)
-	@echo "Starting all services..."
-	docker-compose up -d
-	@echo "Services started! Waiting for initialization..."
-	@sleep 5
-	@echo "Services should be available at:"
-	@echo "  FastAPI App: http://localhost:8000"
-	@echo "  Prometheus:  http://localhost:9090"
-	@echo "  Grafana:     http://localhost:3000 (admin/admin123)"
-
-stop:  ## Stop all services (alias for docker-compose-down)
-	@echo "Stopping all services..."
-	docker-compose down
-
-restart:  ## Restart all services
-	@echo "Restarting all services..."
-	docker-compose down
-	docker-compose up -d
-	@echo "Services restarted!"
-
-status:  ## Show status of all containers
-	@echo "Container status:"
-	@docker-compose ps
-
-logs:  ## Show logs from all services
-	docker-compose logs -f
-
-logs-app:  ## Show logs from FastAPI application only
-	docker-compose logs -f fastapi-app
-
-logs-prometheus:  ## Show logs from Prometheus only
-	docker-compose logs -f prometheus
-
-logs-grafana:  ## Show logs from Grafana only
-	docker-compose logs -f grafana
+load_test:  ## Run load test script
+	@echo "Running load test for 5 minutes..."
+	uv run python scripts/load_test.py --duration 300 --concurrency 20
 
 # =============================================================================
 # TRAFFIC GENERATION
@@ -212,15 +104,6 @@ traffic-realistic:  ## Generate realistic microservices traffic using Python scr
 traffic-extended:  ## Generate extended realistic traffic for 15 minutes
 	@echo "Generating extended realistic traffic for 15 minutes..."
 	@uv run python scripts/generate_traffic.py --duration 15
-
-# Manual endpoint testing with curl (these are for manual testing when server is running)
-
-test-all-endpoints:  ## Test all service endpoints
-	@echo "Testing all service endpoints..."
-	@make test-users
-	@make test-orders  
-	@make test-payments
-	@make test-demo
 
 traffic-stop:  ## Stop any running traffic generation
 	@echo "Stopping traffic generation processes..."
