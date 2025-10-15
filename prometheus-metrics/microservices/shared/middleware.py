@@ -41,20 +41,13 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
         """Process HTTP request and record metrics."""
 
         # Skip metrics endpoint to avoid recursion
-        if request.url.path == "/metrics":
+        if request.url.path == "/metrics" or request.url.path == "/metrics/":
             return await call_next(request)
-
-        # Get route path for better grouping (instead of actual URL with IDs)
-        endpoint = request.url.path
-        for route in request.app.routes:
-            match, child_scope = route.matches(request.scope)
-            if match:
-                endpoint = route.path
-                break
 
         method = request.method
 
-        # Track request in progress
+        # Track request in progress with the raw path initially
+        endpoint = request.url.path
         HTTP_REQUESTS_IN_PROGRESS.labels(method=method, endpoint=endpoint, service=self.service_name).inc()
 
         # Track request duration
@@ -64,6 +57,16 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
             # Process request
             response = await call_next(request)
             status_code = response.status_code
+
+            # Get the matched route path after request is processed
+            # This gives us the route template (e.g., /users/{id}) instead of actual path (/users/123)
+            endpoint = request.url.path
+            if hasattr(request.state, "route"):
+                endpoint = request.state.route.path
+            elif hasattr(request, "scope") and "route" in request.scope:
+                route = request.scope["route"]
+                if hasattr(route, "path"):
+                    endpoint = route.path
 
             # Record metrics
             HTTP_REQUESTS_TOTAL.labels(
@@ -78,6 +81,15 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
             return response
 
         except Exception as e:
+            # Get endpoint for error case
+            endpoint = request.url.path
+            if hasattr(request.state, "route"):
+                endpoint = request.state.route.path
+            elif hasattr(request, "scope") and "route" in request.scope:
+                route = request.scope["route"]
+                if hasattr(route, "path"):
+                    endpoint = route.path
+
             # Record error metrics
             HTTP_REQUESTS_TOTAL.labels(
                 method=method, endpoint=endpoint, status_code=500, service=self.service_name
@@ -91,5 +103,5 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
             raise e
 
         finally:
-            # Decrement in-progress counter
-            HTTP_REQUESTS_IN_PROGRESS.labels(method=method, endpoint=endpoint, service=self.service_name).dec()
+            # Decrement in-progress counter (use original path)
+            HTTP_REQUESTS_IN_PROGRESS.labels(method=method, endpoint=request.url.path, service=self.service_name).dec()
