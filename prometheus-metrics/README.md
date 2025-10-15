@@ -248,20 +248,3 @@ docker-compose -f docker-compose.microservices.yml down -v
 # Stop and remove images
 docker-compose -f docker-compose.microservices.yml down --rmi all
 ```
-
-## Migration from Monolith
-
-The original monolithic application is still available in the `app/` directory. To migrate:
-
-1. Both architectures share the same database schema
-2. The API Gateway provides the same endpoints as the monolith
-3. Metrics are collected from all services
-4. Business logic remains the same, just distributed
-
-## Contributing
-
-1. Follow the existing service structure
-2. Add comprehensive tests for new services
-3. Update documentation
-4. Ensure all services have proper health checks
-5. Add appropriate metrics and logging
