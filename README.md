@@ -2,6 +2,8 @@
 
 - **Metrics** (Prometheus + Grafana): [prometheus-metrics](./prometheus-metrics/)
 <img width="1908" height="870" alt="image" src="https://github.com/user-attachments/assets/0055a4ef-8161-445c-b3dd-cf6ebecb7c05" />
+<img width="1912" height="849" alt="image" src="https://github.com/user-attachments/assets/71c26a95-b9d5-43ce-95b7-e8c13ad32f73" />
+
 
 - **Logs** (Elasticsearch + Kibana): [elasticsearch-logs](./elasticsearch-logs/)
 
