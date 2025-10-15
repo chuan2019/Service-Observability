@@ -3,10 +3,10 @@
 
 import asyncio
 import aiohttp
-import json
+import argparse
 import random
 import time
-from typing import List, Dict
+from typing import Dict
 
 # API endpoints
 BASE_URL = "http://localhost:8000"
@@ -272,10 +272,22 @@ async def main():
     """Main load testing function."""
     print("E-Commerce Microservices Load Tester")
     print("=" * 60)
-    
-    # Test configuration
-    duration = 60  # seconds
-    concurrent_requests = 5
+
+    parser = argparse.ArgumentParser(
+        description="Load testing script for e-commerce microservices API"
+    )
+    parser.add_argument(
+        "--duration", type=int, default=60,
+        help="Duration of the load test in seconds (default: 60)"
+    )
+    parser.add_argument(
+        "--concurrent-requests", type=int, default=5,
+        help="Number of concurrent requests to make (default: 5)"
+    )
+
+    args = parser.parse_args()
+    duration = args.duration
+    concurrent_requests = args.concurrent_requests
     
     try:
         async with LoadTester() as tester:

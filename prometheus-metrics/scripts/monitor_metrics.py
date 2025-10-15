@@ -6,8 +6,6 @@ Displays key metrics in a dashboard-like format.
 
 import asyncio
 import aiohttp
-import json
-import time
 import sys
 from datetime import datetime
 from typing import Dict, Any

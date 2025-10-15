@@ -11,11 +11,43 @@ help:  ## Show this help message
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
+start:  ## Start all microservices with Docker
+	./start-microservices.sh
+
+init-data:  ## Initialize sample data for microservices
+	python scripts/init_microservices_data.py
+
+restart:  ## Restart all microservices
+	@echo "Restarting all microservices..."
+	docker-compose -f docker-compose.microservices.yml down
+	docker-compose -f docker-compose.microservices.yml up -d
+	@echo "Microservices restarted!"
+
+status:  ## Show status of all containers
+	@echo "Container status:"
+	@docker-compose -f docker-compose.microservices.yml ps
+
+stop:  ## Stop all microservices
+	@echo "Stopping all microservices..."
+	docker-compose -f docker-compose.microservices.yml down
+
 clean:  ## Clean up cache and temporary files
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	rm -rf .coverage htmlcov/ .pytest_cache/
+
+logs:  ## View logs from all microservices
+	docker-compose -f docker-compose.microservices.yml logs -f
+
+services-health:  ## Check health of all microservices
+	curl -s http://localhost:8000/health/services | python -m json.tool
+
+
+
+# =============================================================================
+# TESTING AND QUALITY ASSURANCE
+# =============================================================================
 
 test:  ## Run all quality checks
 	@echo "Running format check..."
@@ -27,93 +59,9 @@ test:  ## Run all quality checks
 	@echo "Running tests..."
 	uv run pytest tests/ -vvv --tb=long
 
-run:  ## Start all microservices with Docker
-	./start-microservices.sh
-
-run-demo:  ## Start core microservices for demo
-	./demo-microservices.sh
-
-docker-compose-up:  ## Start all microservices with docker-compose
-	docker-compose -f docker-compose.microservices.yml up --build -d
-
-docker-compose-down:  ## Stop all microservices
-	docker-compose -f docker-compose.microservices.yml down
-
-docker-compose-logs:  ## View logs from all microservices
-	docker-compose -f docker-compose.microservices.yml logs -f
-
-services-health:  ## Check health of all microservices
-	curl -s http://localhost:8000/health/services | python -m json.tool
-
-init-data:  ## Initialize sample data for microservices
-	python scripts/init_microservices_data.py
-
-setup-env:  ## Copy example environment file
-	cp .env.example .env
-	@echo "Environment file created. Please edit .env as needed."
-
-install-hooks:  ## Install pre-commit hooks
-	@echo "Installing pre-commit hooks..."
-	echo "#!/bin/sh\nmake check" > .git/hooks/pre-commit
-	chmod +x .git/hooks/pre-commit
-	@echo "Pre-commit hooks installed!"
-
-metrics:  ## Show current metrics (requires running application)
-	@echo "Fetching metrics from http://localhost:8000/metrics"
-	@curl -s http://localhost:8000/metrics | head -20
-
-health:  ## Check application health
-	@echo "Checking application health..."
-	@curl -s http://localhost:8000/health/ | uv run python -m json.tool
-
-# Development workflow commands
-dev-setup: setup-env uv-init  ## Complete development setup
-	@echo "Development environment setup complete!"
-	@echo "Run 'make run-dev' to start the application."
-
-production-setup: install  ## Production setup
-	@echo "Production environment setup complete!"
-	@echo "Configure your .env file and run 'make run' to start."
-
-# =============================================================================
-# DOCKER OPERATIONS
-# =============================================================================
-
-start:  ## Start all microservices
-	@echo "Starting all microservices..."
-	docker-compose -f docker-compose.microservices.yml up -d
-	@echo "Microservices started! Waiting for initialization..."
-	@sleep 15
-	@echo "Services should be available at:"
-	@echo "  API Gateway: http://localhost:8000"
-	@echo "  Prometheus:  http://localhost:9090"
-	@echo "  Grafana:     http://localhost:3000 (admin/admin123)"
-
-stop:  ## Stop all microservices
-	@echo "Stopping all microservices..."
-	docker-compose -f docker-compose.microservices.yml down
-
-restart:  ## Restart all microservices
-	@echo "Restarting all microservices..."
-	docker-compose -f docker-compose.microservices.yml down
-	docker-compose -f docker-compose.microservices.yml up -d
-	@echo "Microservices restarted!"
-
-status:  ## Show status of all containers
-	@echo "Container status:"
-	@docker-compose ps
-
-logs:  ## Show logs from all services
-	docker-compose logs -f
-
-logs-app:  ## Show logs from FastAPI application only
-	docker-compose logs -f fastapi-app
-
-logs-prometheus:  ## Show logs from Prometheus only
-	docker-compose logs -f prometheus
-
-logs-grafana:  ## Show logs from Grafana only
-	docker-compose logs -f grafana
+load_test:  ## Run load test script
+	@echo "Running load test for 5 minutes..."
+	uv run python scripts/load_test.py --duration 300 --concurrency 20
 
 # =============================================================================
 # TRAFFIC GENERATION
@@ -156,15 +104,6 @@ traffic-realistic:  ## Generate realistic microservices traffic using Python scr
 traffic-extended:  ## Generate extended realistic traffic for 15 minutes
 	@echo "Generating extended realistic traffic for 15 minutes..."
 	@uv run python scripts/generate_traffic.py --duration 15
-
-# Manual endpoint testing with curl (these are for manual testing when server is running)
-
-test-all-endpoints:  ## Test all service endpoints
-	@echo "Testing all service endpoints..."
-	@make test-users
-	@make test-orders  
-	@make test-payments
-	@make test-demo
 
 traffic-stop:  ## Stop any running traffic generation
 	@echo "Stopping traffic generation processes..."
