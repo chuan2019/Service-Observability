@@ -24,17 +24,32 @@ docker-compose -f docker-compose.microservices.yml up --build -d
 
 # Wait for services to be healthy
 echo "Waiting for services to be healthy..."
-sleep 30
+echo ""
+sleep 10
 
 # Check service health
 echo "Checking service health..."
-services=("postgres:5432" "api-gateway:8000" "user-service:8001" "product-service:8002" "inventory-service:8003" "order-service:8004" "payment-service:8005" "notification-service:8006")
+
+# Check Postgres (database connection)
+echo "Checking postgres..."
+docker-compose -f docker-compose.microservices.yml exec -T postgres pg_isready -U postgres >/dev/null 2>&1 && echo "[OK] postgres is healthy" || echo "[ERROR] postgres is not healthy"
+
+# Check microservices
+services=("api-gateway:8000" "user-service:8001" "product-service:8002" "inventory-service:8003" "order-service:8004" "payment-service:8005" "notification-service:8006")
 
 for service in "${services[@]}"; do
     service_name=$(echo $service | cut -d: -f1)
+    port=$(echo $service | cut -d: -f2)
     echo "Checking $service_name..."
-    docker-compose -f docker-compose.microservices.yml exec -T $service_name curl -f http://localhost:$(echo $service | cut -d: -f2)/health >/dev/null 2>&1 && echo "[OK] $service_name is healthy" || echo "[ERROR] $service_name is not healthy"
+    curl -f http://localhost:$port/health >/dev/null 2>&1 && echo "[OK] $service_name is healthy" || echo "[ERROR] $service_name is not healthy"
 done
+
+# Check Prometheus and Grafana
+echo "Checking Prometheus..."
+curl -f http://localhost:9090/-/healthy >/dev/null 2>&1 && echo "[OK] Prometheus is healthy" || echo "[ERROR] Prometheus is not healthy"
+
+echo "Checking Grafana..."
+curl -f http://localhost:3000/api/health >/dev/null 2>&1 && echo "[OK] Grafana is healthy" || echo "[ERROR] Grafana is not healthy"
 
 echo ""
 echo "Microservices are starting up!"

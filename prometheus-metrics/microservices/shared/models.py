@@ -7,10 +7,9 @@ from enum import Enum
 from typing import List, Optional
 
 try:
-    from sqlalchemy import (
-        Boolean, DateTime, Float, ForeignKey, Integer, String, Text, JSON
-    )
-    from sqlalchemy.orm import relationship, Mapped, mapped_column
+    from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+    from sqlalchemy.orm import Mapped, mapped_column, relationship
+
     from .database import Base
 except ImportError:
     # Handle import errors gracefully during development
@@ -21,6 +20,7 @@ except ImportError:
 
 class OrderStatus(str, Enum):
     """Order status enumeration."""
+
     PENDING = "pending"
     CONFIRMED = "confirmed"
     SHIPPED = "shipped"
@@ -30,6 +30,7 @@ class OrderStatus(str, Enum):
 
 class PaymentStatus(str, Enum):
     """Payment status enumeration."""
+
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -38,6 +39,7 @@ class PaymentStatus(str, Enum):
 
 class NotificationStatus(str, Enum):
     """Notification status enumeration."""
+
     PENDING = "pending"
     SENT = "sent"
     FAILED = "failed"
@@ -46,6 +48,7 @@ class NotificationStatus(str, Enum):
 # User Service Models
 class User(Base):
     """User model for user service."""
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -64,6 +67,7 @@ class User(Base):
 # Product Service Models
 class Product(Base):
     """Product model for product service."""
+
     __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -84,6 +88,7 @@ class Product(Base):
 # Inventory Service Models
 class Stock(Base):
     """Stock model for inventory service."""
+
     __tablename__ = "stock"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -100,6 +105,7 @@ class Stock(Base):
 
 class StockReservation(Base):
     """Stock reservation model for inventory service."""
+
     __tablename__ = "stock_reservations"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -107,7 +113,7 @@ class StockReservation(Base):
     order_id: Mapped[int] = mapped_column(Integer, index=True)
     quantity: Mapped[int] = mapped_column(Integer)
     reserved_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     stock: Mapped["Stock"] = relationship("Stock", back_populates="reservations")
 
@@ -115,6 +121,7 @@ class StockReservation(Base):
 # Order Service Models
 class Order(Base):
     """Order model for order service."""
+
     __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -132,6 +139,7 @@ class Order(Base):
 
 class OrderItem(Base):
     """Order item model for order service."""
+
     __tablename__ = "order_items"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -149,6 +157,7 @@ class OrderItem(Base):
 # Payment Service Models
 class Payment(Base):
     """Payment model for payment service."""
+
     __tablename__ = "payments"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -167,6 +176,7 @@ class Payment(Base):
 # Notification Service Models
 class Notification(Base):
     """Notification model for notification service."""
+
     __tablename__ = "notifications"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)

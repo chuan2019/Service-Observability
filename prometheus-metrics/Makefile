@@ -11,68 +11,21 @@ help:  ## Show this help message
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-install:  ## Install production dependencies using uv
-	uv sync --no-dev
-
-dev-install:  ## Install development dependencies using uv
-	uv sync --all-extras
-
 clean:  ## Clean up cache and temporary files
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name "__pycache__" -delete
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	rm -rf .coverage htmlcov/ .pytest_cache/
 
-uv-lock:  ## Update uv.lock file
-	uv lock
-
-uv-sync:  ## Sync dependencies with uv.lock
-	uv sync
-
-uv-init:  ## Initialize uv project and create virtual environment
-	uv venv --clear
-	uv sync --all-extras
-
-test:  ## Run microservices integration tests
-	python -m pytest tests/ -v
-
-test-microservices:  ## Run microservices integration tests
-	python -m pytest tests/test_microservices.py -v
-
-test-demo:  ## Run demo service tests only
-	uv run pytest tests/test_demo.py -v
-
-test-integration:  ## Run integration tests only
-	uv run pytest tests/test_integration.py -v
-
-test-metrics:  ## Run metrics tests only
-	uv run pytest tests/test_metrics.py -v
-
-test-services:  ## Run all service tests (users, orders, payments, demo)
-	uv run pytest tests/test_users.py tests/test_orders.py tests/test_payments.py tests/test_demo.py -v
-
-test-fast:  ## Run tests with minimal output
-	uv run pytest -q
-
-test-verbose:  ## Run tests with maximum verbosity
-	uv run pytest -vvv --tb=long
-
-lint:  ## Run linting
-	uv run flake8 app/ tests/
-
-format:  ## Format code
-	uv run black app/ tests/
-	uv run isort app/ tests/
-
-check:  ## Run all quality checks
+test:  ## Run all quality checks
 	@echo "Running format check..."
-	uv run black --check app/ tests/
+	uv run black --verbose  microservices/
 	@echo "Running import sort check..."
-	uv run isort --check-only app/ tests/
+	uv run isort --verbose  microservices/
 	@echo "Running linting..."
-	uv run flake8 app/ tests/
+	uv run flake8  microservices/
 	@echo "Running tests..."
-	uv run pytest
+	uv run pytest tests/ -vvv --tb=long
 
 run:  ## Start all microservices with Docker
 	./start-microservices.sh

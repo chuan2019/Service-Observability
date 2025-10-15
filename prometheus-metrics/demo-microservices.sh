@@ -32,6 +32,13 @@ docker-compose -f docker-compose.microservices.yml up -d api-gateway
 echo "Waiting for API Gateway..."
 sleep 10
 
+# Start Prometheus and Grafana
+echo "Starting monitoring services..."
+docker-compose -f docker-compose.microservices.yml up -d prometheus grafana
+
+echo "Waiting for monitoring services..."
+sleep 10
+
 echo ""
 echo "All microservices are running!"
 echo ""
@@ -44,6 +51,10 @@ echo "Order Service:      http://localhost:8004"
 echo "Payment Service:    http://localhost:8005"
 echo "Notification Service: http://localhost:8006"
 echo "PostgreSQL:         localhost:5432"
+echo ""
+echo "Monitoring:"
+echo "Prometheus:         http://localhost:9090"
+echo "Grafana:            http://localhost:3000 (admin:admin123)"
 echo ""
 echo "API Documentation:"
 echo "API Gateway Docs:   http://localhost:8000/docs"

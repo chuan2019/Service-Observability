@@ -5,11 +5,13 @@ Shared Pydantic models for microservices communication.
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
+
 from pydantic import BaseModel, EmailStr
 
 
 class OrderStatus(str, Enum):
     """Order status enumeration."""
+
     PENDING = "pending"
     CONFIRMED = "confirmed"
     SHIPPED = "shipped"
@@ -19,6 +21,7 @@ class OrderStatus(str, Enum):
 
 class PaymentStatus(str, Enum):
     """Payment status enumeration."""
+
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -27,6 +30,7 @@ class PaymentStatus(str, Enum):
 
 class NotificationStatus(str, Enum):
     """Notification status enumeration."""
+
     PENDING = "pending"
     SENT = "sent"
     FAILED = "failed"
@@ -35,6 +39,7 @@ class NotificationStatus(str, Enum):
 # User Service Models
 class UserBase(BaseModel):
     """Base user model."""
+
     email: EmailStr
     name: str
     address: Optional[str] = None
@@ -44,11 +49,13 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """User creation model."""
+
     pass
 
 
 class UserUpdate(BaseModel):
     """User update model."""
+
     name: Optional[str] = None
     address: Optional[str] = None
     phone: Optional[str] = None
@@ -57,6 +64,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     """User response model."""
+
     id: int
     created_at: datetime
     updated_at: datetime
@@ -68,6 +76,7 @@ class UserResponse(UserBase):
 # Product Service Models
 class ProductBase(BaseModel):
     """Base product model."""
+
     name: str
     description: Optional[str] = None
     price: float
@@ -78,11 +87,13 @@ class ProductBase(BaseModel):
 
 class ProductCreate(ProductBase):
     """Product creation model."""
+
     pass
 
 
 class ProductUpdate(BaseModel):
     """Product update model."""
+
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
@@ -92,6 +103,7 @@ class ProductUpdate(BaseModel):
 
 class ProductResponse(ProductBase):
     """Product response model."""
+
     id: int
     created_at: datetime
     updated_at: datetime
@@ -103,6 +115,7 @@ class ProductResponse(ProductBase):
 # Inventory Service Models
 class StockBase(BaseModel):
     """Base stock model."""
+
     product_id: int
     available_quantity: int
     reserved_quantity: int = 0
@@ -111,11 +124,13 @@ class StockBase(BaseModel):
 
 class StockCreate(StockBase):
     """Stock creation model."""
+
     pass
 
 
 class StockUpdate(BaseModel):
     """Stock update model."""
+
     available_quantity: Optional[int] = None
     reserved_quantity: Optional[int] = None
     reorder_level: Optional[int] = None
@@ -123,6 +138,7 @@ class StockUpdate(BaseModel):
 
 class StockResponse(StockBase):
     """Stock response model."""
+
     id: int
     last_updated: datetime
 
@@ -132,6 +148,7 @@ class StockResponse(StockBase):
 
 class StockReservationRequest(BaseModel):
     """Stock reservation request model."""
+
     product_id: int
     quantity: int
     order_id: int
@@ -139,6 +156,7 @@ class StockReservationRequest(BaseModel):
 
 class StockReservationResponse(BaseModel):
     """Stock reservation response model."""
+
     id: int
     stock_id: int
     order_id: int
@@ -152,6 +170,7 @@ class StockReservationResponse(BaseModel):
 # Order Service Models
 class OrderItemBase(BaseModel):
     """Base order item model."""
+
     product_id: int
     quantity: int
     unit_price: float
@@ -159,11 +178,13 @@ class OrderItemBase(BaseModel):
 
 class OrderItemCreate(OrderItemBase):
     """Order item creation model."""
+
     pass
 
 
 class OrderItemResponse(OrderItemBase):
     """Order item response model."""
+
     id: int
     total_price: float
 
@@ -173,18 +194,21 @@ class OrderItemResponse(OrderItemBase):
 
 class OrderBase(BaseModel):
     """Base order model."""
+
     user_id: int
     status: OrderStatus = OrderStatus.PENDING
 
 
 class OrderCreate(BaseModel):
     """Order creation model."""
+
     user_id: int
     items: List[OrderItemCreate]
 
 
 class OrderResponse(OrderBase):
     """Order response model."""
+
     id: int
     items: List[OrderItemResponse] = []
     total_amount: float
@@ -198,6 +222,7 @@ class OrderResponse(OrderBase):
 # Payment Service Models
 class PaymentBase(BaseModel):
     """Base payment model."""
+
     order_id: int
     amount: float
     payment_method: str
@@ -206,11 +231,13 @@ class PaymentBase(BaseModel):
 
 class PaymentCreate(PaymentBase):
     """Payment creation model."""
+
     pass
 
 
 class PaymentResponse(PaymentBase):
     """Payment response model."""
+
     id: int
     transaction_id: Optional[str] = None
     processed_at: Optional[datetime] = None
@@ -223,6 +250,7 @@ class PaymentResponse(PaymentBase):
 # Notification Service Models
 class NotificationBase(BaseModel):
     """Base notification model."""
+
     user_id: int
     order_id: Optional[int] = None
     type: str
@@ -233,11 +261,13 @@ class NotificationBase(BaseModel):
 
 class NotificationCreate(NotificationBase):
     """Notification creation model."""
+
     pass
 
 
 class NotificationResponse(NotificationBase):
     """Notification response model."""
+
     id: int
     sent_at: Optional[datetime] = None
     created_at: datetime
@@ -249,6 +279,7 @@ class NotificationResponse(NotificationBase):
 # Health Check Models
 class HealthResponse(BaseModel):
     """Health check response model."""
+
     status: str
     service: str
     timestamp: datetime
