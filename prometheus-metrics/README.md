@@ -52,6 +52,7 @@ The application is split into the following microservices:
    ```bash
    curl http://localhost:8000/health/services
    ```
+<img width="907" height="825" alt="image" src="https://github.com/user-attachments/assets/0a07c525-730c-444d-bcbb-49c2e23db5ff" />
 
 ### Available Endpoints
 
