@@ -61,7 +61,7 @@ test:  ## Run all quality checks
 
 load_test:  ## Run load test script
 	@echo "Running load test for 5 minutes..."
-	uv run python scripts/load_test.py --duration 300 --concurrent-requests 20
+	uv run python scripts/load_test.py --duration 1800 --concurrent-requests 25
 
 # =============================================================================
 # TRAFFIC GENERATION
