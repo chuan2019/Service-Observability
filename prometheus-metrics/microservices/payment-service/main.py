@@ -1,8 +1,10 @@
 """Payment microservice main application."""
 
 import os
+import random
 import sys
 import uuid
+import uvicorn
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
@@ -16,6 +18,8 @@ from shared.middleware import PrometheusMiddleware
 from shared.schemas import HealthResponse, PaymentCreate, PaymentResponse, PaymentStatus
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from shared.models import Payment
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -90,8 +94,6 @@ async def process_payment(payment_data: PaymentCreate, session: AsyncSession = D
     """Process a payment."""
     with PAYMENT_OPERATION_DURATION.labels(operation="process").time():
         try:
-            from shared.models import Payment
-
             # Generate transaction ID
             transaction_id = f"TXN-{uuid.uuid4().hex[:12].upper()}"
 
@@ -108,8 +110,6 @@ async def process_payment(payment_data: PaymentCreate, session: AsyncSession = D
 
             # Simulate payment processing
             # In real world, this would call payment gateway API
-            import random
-
             success = random.random() > 0.1  # 90% success rate
 
             if success:
@@ -139,8 +139,6 @@ async def list_payments(skip: int = 0, limit: int = 100, session: AsyncSession =
     """Get all payments."""
     with PAYMENT_OPERATION_DURATION.labels(operation="list").time():
         try:
-            from shared.models import Payment
-
             result = await session.execute(select(Payment).offset(skip).limit(limit))
             payments = result.scalars().all()
 
@@ -156,8 +154,6 @@ async def get_payment(payment_id: int, session: AsyncSession = Depends(get_sessi
     """Get payment by ID."""
     with PAYMENT_OPERATION_DURATION.labels(operation="get").time():
         try:
-            from shared.models import Payment
-
             result = await session.execute(select(Payment).where(Payment.id == payment_id))
             payment = result.scalar_one_or_none()
 
@@ -179,8 +175,6 @@ async def get_order_payments(order_id: int, session: AsyncSession = Depends(get_
     """Get all payments for an order."""
     with PAYMENT_OPERATION_DURATION.labels(operation="get_order_payments").time():
         try:
-            from shared.models import Payment
-
             result = await session.execute(select(Payment).where(Payment.order_id == order_id))
             payments = result.scalars().all()
 
@@ -196,8 +190,6 @@ async def refund_payment(payment_id: int, session: AsyncSession = Depends(get_se
     """Refund a payment."""
     with PAYMENT_OPERATION_DURATION.labels(operation="refund").time():
         try:
-            from shared.models import Payment
-
             result = await session.execute(select(Payment).where(Payment.id == payment_id))
             payment = result.scalar_one_or_none()
 
@@ -226,6 +218,9 @@ async def refund_payment(payment_id: int, session: AsyncSession = Depends(get_se
 
 
 if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=settings.PORT)
+    uvicorn.run(
+        "main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=settings.ENVIRONMENT == "development",
+    )

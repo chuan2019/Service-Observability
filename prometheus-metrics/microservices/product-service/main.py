@@ -2,6 +2,7 @@
 
 import os
 import sys
+import uvicorn
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
@@ -235,8 +236,6 @@ async def delete_product(product_id: int, session: AsyncSession = Depends(get_se
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     uvicorn.run(
         "main:app",
         host=settings.HOST,

@@ -177,20 +177,145 @@ class TestMicroservicesIntegration:
             assert "id" in product, f"No 'id' in response: {product}"
             product_id = product["id"]
 
-        # Get all inventory
+        # Test 1: Get all inventory (should be list)
         async with http_session.get(f"{base_url}/api/inventory") as response:
             assert response.status == 200
             inventory = await response.json()
             assert isinstance(inventory, list)
 
-        # Try to get specific product inventory (may not exist yet - that's ok)
+        # Test 2: Get specific product inventory (should not exist yet - 404 expected)
         async with http_session.get(f"{base_url}/api/inventory/{product_id}") as response:
-            # Inventory might not exist for newly created products - that's expected
-            assert response.status in [200, 404], f"Unexpected status for inventory GET: {response.status}"
-            
-        # Note: PUT /inventory requires the inventory record to already exist
-        # There's no POST endpoint to create inventory initially
-        # Inventory is typically created through other means (e.g., when products are added)
+            assert response.status == 404, "Stock should not exist for newly created product"
+
+        # Test 3: Create stock for product (POST /inventory)
+        stock_data = {
+            "product_id": product_id,
+            "available_quantity": 100,
+            "reserved_quantity": 0,
+            "reorder_level": 10
+        }
+
+        async with http_session.post(
+            f"{base_url}/api/inventory",
+            json=stock_data
+        ) as response:
+            assert response.status == 201, f"Failed to create stock: {await response.text()}"
+            stock = await response.json()
+            assert stock["product_id"] == product_id
+            assert stock["available_quantity"] == 100
+            assert stock["reserved_quantity"] == 0
+            assert stock["reorder_level"] == 10
+            assert "id" in stock
+            assert "last_updated" in stock
+
+        # Test 4: Try to create duplicate stock (should fail with 400)
+        async with http_session.post(
+            f"{base_url}/api/inventory",
+            json=stock_data
+        ) as response:
+            assert response.status == 400, "Should not allow duplicate stock creation"
+            error = await response.json()
+            assert "already exists" in error["detail"].lower()
+
+        # Test 5: Get the created stock
+        async with http_session.get(f"{base_url}/api/inventory/{product_id}") as response:
+            assert response.status == 200
+            stock = await response.json()
+            assert stock["product_id"] == product_id
+            assert stock["available_quantity"] == 100
+
+        # Test 6: Update stock (PUT /inventory/{product_id})
+        update_data = {
+            "available_quantity": 150,
+            "reserved_quantity": 10,
+            "reorder_level": 20
+        }
+
+        async with http_session.put(
+            f"{base_url}/api/inventory/{product_id}",
+            json=update_data
+        ) as response:
+            assert response.status == 200
+            updated_stock = await response.json()
+            assert updated_stock["available_quantity"] == 150
+            assert updated_stock["reserved_quantity"] == 10
+            assert updated_stock["reorder_level"] == 20
+
+        # Test 7: Reserve stock for an order (create order first for valid foreign key)
+        # Note: We need to create a user first for the order
+        unique_order_id = self._get_unique_id()
+        user_data = {
+            "name": "Inventory Test User",
+            "email": f"invtest{unique_order_id}@example.com",
+            "address": "123 Test St",
+            "phone": "+1-555-0400"
+        }
+
+        async with http_session.post(f"{base_url}/api/users", json=user_data) as response:
+            assert response.status == 200
+            user = await response.json()
+            user_id = user["id"]
+
+        # Create an order
+        order_data = {
+            "user_id": user_id,
+            "items": [{"product_id": product_id, "quantity": 5, "unit_price": 50.00}],
+            "total": 250.00
+        }
+
+        async with http_session.post(f"{base_url}/api/orders", json=order_data) as response:
+            assert response.status == 200
+            order = await response.json()
+            order_id = order["id"]
+
+        # Now reserve stock for the order
+        async with http_session.post(
+            f"{base_url}/api/inventory/{product_id}/reserve",
+            params={"quantity": 5, "order_id": order_id}
+        ) as response:
+            assert response.status == 200
+            result = await response.json()
+            assert result["status"] == "reserved"
+            assert result["quantity"] == 5
+
+        # Test 8: Verify reserved quantity increased
+        async with http_session.get(f"{base_url}/api/inventory/{product_id}") as response:
+            assert response.status == 200
+            stock = await response.json()
+            assert stock["reserved_quantity"] == 15  # Was 10, added 5
+
+        # Test 9: Try to reserve more than available (should fail)
+        async with http_session.post(
+            f"{base_url}/api/inventory/{product_id}/reserve",
+            params={"quantity": 200, "order_id": order_id}  # More than available (150 - 15 = 135)
+        ) as response:
+            assert response.status == 400
+            error = await response.json()
+            assert "insufficient stock" in error["detail"].lower()
+
+        # Test 10: Release reservation
+        async with http_session.post(
+            f"{base_url}/api/inventory/orders/{order_id}/release"
+        ) as response:
+            assert response.status == 200
+            result = await response.json()
+            assert result["status"] == "released"
+
+        # Test 11: Verify reserved quantity decreased
+        async with http_session.get(f"{base_url}/api/inventory/{product_id}") as response:
+            assert response.status == 200
+            stock = await response.json()
+            assert stock["reserved_quantity"] == 10  # Back to 10 after releasing 5
+
+        # Test 12: Get all inventory again (should include our created stock)
+        async with http_session.get(f"{base_url}/api/inventory") as response:
+            assert response.status == 200
+            inventory = await response.json()
+            assert isinstance(inventory, list)
+            # Verify our product is in the list
+            product_stocks = [s for s in inventory if s["product_id"] == product_id]
+            assert len(product_stocks) == 1
+            assert product_stocks[0]["available_quantity"] == 150
 
         # Clean up
         async with http_session.delete(f"{base_url}/api/products/{product_id}") as response:

@@ -5,6 +5,7 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
+import uvicorn
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +17,8 @@ from shared.schemas import HealthResponse, OrderCreate, OrderResponse, OrderStat
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from shared.models import Order, OrderItem
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -90,8 +93,6 @@ async def create_order(order_data: OrderCreate, session: AsyncSession = Depends(
     """Create a new order."""
     with ORDER_OPERATION_DURATION.labels(operation="create").time():
         try:
-            from shared.models import Order, OrderItem
-
             # Calculate total
             total_amount = sum(item.quantity * item.unit_price for item in order_data.items)
 
@@ -134,8 +135,6 @@ async def list_orders(skip: int = 0, limit: int = 100, session: AsyncSession = D
     """Get all orders."""
     with ORDER_OPERATION_DURATION.labels(operation="list").time():
         try:
-            from shared.models import Order
-
             result = await session.execute(select(Order).options(selectinload(Order.items)).offset(skip).limit(limit))
             orders = result.scalars().all()
 
@@ -151,8 +150,6 @@ async def get_order(order_id: int, session: AsyncSession = Depends(get_session))
     """Get order by ID."""
     with ORDER_OPERATION_DURATION.labels(operation="get").time():
         try:
-            from shared.models import Order
-
             result = await session.execute(select(Order).options(selectinload(Order.items)).where(Order.id == order_id))
             order = result.scalar_one_or_none()
 
@@ -174,8 +171,6 @@ async def update_order_status(order_id: int, status: OrderStatus, session: Async
     """Update order status."""
     with ORDER_OPERATION_DURATION.labels(operation="update_status").time():
         try:
-            from shared.models import Order
-
             result = await session.execute(select(Order).where(Order.id == order_id))
             order = result.scalar_one_or_none()
 
@@ -210,8 +205,6 @@ async def cancel_order(order_id: int, reason: str = "user_requested", session: A
     """Cancel an order."""
     with ORDER_OPERATION_DURATION.labels(operation="cancel").time():
         try:
-            from shared.models import Order
-
             result = await session.execute(select(Order).where(Order.id == order_id))
             order = result.scalar_one_or_none()
 
@@ -244,8 +237,6 @@ async def get_user_orders(user_id: int, session: AsyncSession = Depends(get_sess
     """Get all orders for a user."""
     with ORDER_OPERATION_DURATION.labels(operation="get_user_orders").time():
         try:
-            from shared.models import Order
-
             result = await session.execute(
                 select(Order).options(selectinload(Order.items)).where(Order.user_id == user_id)
             )
@@ -259,6 +250,4 @@ async def get_user_orders(user_id: int, session: AsyncSession = Depends(get_sess
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=settings.PORT)

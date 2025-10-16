@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import List
 
 import httpx
+import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram, make_asgi_app
@@ -16,6 +17,7 @@ from shared.middleware import PrometheusMiddleware
 from shared.schemas import HealthResponse, UserCreate, UserResponse, UserUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from shared.models import User
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -138,9 +140,6 @@ async def create_user(user_data: UserCreate, session: AsyncSession = Depends(get
     """Create a new user."""
     with USER_OPERATION_DURATION.labels(operation="create").time():
         try:
-            # Import here to avoid circular imports
-            from shared.models import User
-
             # Check if user already exists
             existing_user = await session.execute(select(User).where(User.email == user_data.email))
             if existing_user.scalar_one_or_none():
@@ -169,8 +168,6 @@ async def get_users(skip: int = 0, limit: int = 100, session: AsyncSession = Dep
     """Get all users."""
     with USER_OPERATION_DURATION.labels(operation="list").time():
         try:
-            from shared.models import User
-
             result = await session.execute(select(User).offset(skip).limit(limit))
             users = result.scalars().all()
 
@@ -187,8 +184,6 @@ async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Get a specific user."""
     with USER_OPERATION_DURATION.labels(operation="get").time():
         try:
-            from shared.models import User
-
             result = await session.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
@@ -211,8 +206,6 @@ async def update_user(user_id: int, user_data: UserUpdate, session: AsyncSession
     """Update a user."""
     with USER_OPERATION_DURATION.labels(operation="update").time():
         try:
-            from shared.models import User
-
             result = await session.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
@@ -245,8 +238,6 @@ async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)
     """Delete a user."""
     with USER_OPERATION_DURATION.labels(operation="delete").time():
         try:
-            from shared.models import User
-
             result = await session.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
@@ -271,8 +262,6 @@ async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     uvicorn.run(
         "main:app",
         host=settings.HOST,
