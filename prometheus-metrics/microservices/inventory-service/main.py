@@ -5,6 +5,7 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
+import uvicorn
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,9 +13,11 @@ from prometheus_client import REGISTRY, Counter, Gauge, Histogram, make_asgi_app
 from shared.config import InventoryServiceSettings
 from shared.database import get_db_manager, init_db_manager
 from shared.middleware import PrometheusMiddleware
-from shared.schemas import HealthResponse, StockResponse, StockUpdate
+from shared.schemas import HealthResponse, StockCreate, StockResponse, StockUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from shared.models import Stock, StockReservation
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -87,8 +90,6 @@ async def list_inventory(skip: int = 0, limit: int = 100, session: AsyncSession 
     """Get all inventory items."""
     with INVENTORY_OPERATION_DURATION.labels(operation="list").time():
         try:
-            from shared.models import Stock
-
             result = await session.execute(select(Stock).offset(skip).limit(limit))
             stocks = result.scalars().all()
 
@@ -99,13 +100,51 @@ async def list_inventory(skip: int = 0, limit: int = 100, session: AsyncSession 
             raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/inventory", response_model=StockResponse, status_code=201)
+async def create_stock(stock_data: StockCreate, session: AsyncSession = Depends(get_session)):
+    """Create stock for a product."""
+    with INVENTORY_OPERATION_DURATION.labels(operation="create").time():
+        try:
+            # Check if stock already exists for this product
+            result = await session.execute(select(Stock).where(Stock.product_id == stock_data.product_id))
+            existing_stock = result.scalar_one_or_none()
+
+            if existing_stock:
+                INVENTORY_OPERATIONS.labels(operation="create", status="error").inc()
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Stock already exists for product_id {stock_data.product_id}",
+                )
+
+            # Create new stock
+            new_stock = Stock(
+                product_id=stock_data.product_id,
+                available_quantity=stock_data.available_quantity,
+                reserved_quantity=stock_data.reserved_quantity,
+                reorder_level=stock_data.reorder_level,
+                last_updated=datetime.utcnow(),
+            )
+
+            session.add(new_stock)
+            await session.commit()
+            await session.refresh(new_stock)
+
+            INVENTORY_OPERATIONS.labels(operation="create", status="success").inc()
+            STOCK_LEVEL.labels(product_id=stock_data.product_id).set(stock_data.available_quantity)
+            return StockResponse.model_validate(new_stock)
+        except HTTPException:
+            raise
+        except Exception as e:
+            await session.rollback()
+            INVENTORY_OPERATIONS.labels(operation="create", status="error").inc()
+            raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/inventory/{product_id}", response_model=StockResponse)
 async def get_stock(product_id: int, session: AsyncSession = Depends(get_session)):
     """Get stock for a product."""
     with INVENTORY_OPERATION_DURATION.labels(operation="get").time():
         try:
-            from shared.models import Stock
-
             result = await session.execute(select(Stock).where(Stock.product_id == product_id))
             stock = result.scalar_one_or_none()
 
@@ -114,7 +153,7 @@ async def get_stock(product_id: int, session: AsyncSession = Depends(get_session
                 raise HTTPException(status_code=404, detail="Stock not found")
 
             INVENTORY_OPERATIONS.labels(operation="get", status="success").inc()
-            STOCK_LEVEL.labels(product_id=product_id).set(stock.quantity)
+            STOCK_LEVEL.labels(product_id=product_id).set(stock.available_quantity)
             return StockResponse.model_validate(stock)
         except HTTPException:
             raise
@@ -128,8 +167,6 @@ async def update_stock(product_id: int, stock_update: StockUpdate, session: Asyn
     """Update stock for a product."""
     with INVENTORY_OPERATION_DURATION.labels(operation="update").time():
         try:
-            from shared.models import Stock
-
             result = await session.execute(select(Stock).where(Stock.product_id == product_id))
             stock = result.scalar_one_or_none()
 
@@ -138,18 +175,20 @@ async def update_stock(product_id: int, stock_update: StockUpdate, session: Asyn
                 raise HTTPException(status_code=404, detail="Stock not found")
 
             # Update fields
-            if stock_update.quantity is not None:
-                stock.quantity = stock_update.quantity
-            if stock_update.reserved is not None:
-                stock.reserved = stock_update.reserved
+            if stock_update.available_quantity is not None:
+                stock.available_quantity = stock_update.available_quantity
+            if stock_update.reserved_quantity is not None:
+                stock.reserved_quantity = stock_update.reserved_quantity
+            if stock_update.reorder_level is not None:
+                stock.reorder_level = stock_update.reorder_level
 
-            stock.updated_at = datetime.utcnow()
+            stock.last_updated = datetime.utcnow()
 
             await session.commit()
             await session.refresh(stock)
 
             INVENTORY_OPERATIONS.labels(operation="update", status="success").inc()
-            STOCK_LEVEL.labels(product_id=product_id).set(stock.quantity)
+            STOCK_LEVEL.labels(product_id=product_id).set(stock.available_quantity)
             return StockResponse.model_validate(stock)
         except HTTPException:
             raise
@@ -164,8 +203,6 @@ async def reserve_stock(product_id: int, quantity: int, order_id: int, session: 
     """Reserve stock for an order."""
     with INVENTORY_OPERATION_DURATION.labels(operation="reserve").time():
         try:
-            from shared.models import Stock, StockReservation
-
             result = await session.execute(select(Stock).where(Stock.product_id == product_id))
             stock = result.scalar_one_or_none()
 
@@ -173,7 +210,7 @@ async def reserve_stock(product_id: int, quantity: int, order_id: int, session: 
                 INVENTORY_OPERATIONS.labels(operation="reserve", status="error").inc()
                 raise HTTPException(status_code=404, detail="Stock not found")
 
-            available = stock.quantity - stock.reserved
+            available = stock.available_quantity - stock.reserved_quantity
             if available < quantity:
                 INVENTORY_OPERATIONS.labels(operation="reserve", status="error").inc()
                 raise HTTPException(
@@ -183,21 +220,20 @@ async def reserve_stock(product_id: int, quantity: int, order_id: int, session: 
 
             # Create reservation
             reservation = StockReservation(
-                product_id=product_id,
+                stock_id=stock.id,
                 order_id=order_id,
                 quantity=quantity,
-                expires_at=datetime.utcnow(),
             )
             session.add(reservation)
 
             # Update reserved quantity
-            stock.reserved += quantity
-            stock.updated_at = datetime.utcnow()
+            stock.reserved_quantity += quantity
+            stock.last_updated = datetime.utcnow()
 
             await session.commit()
 
             INVENTORY_OPERATIONS.labels(operation="reserve", status="success").inc()
-            STOCK_LEVEL.labels(product_id=product_id).set(stock.quantity - stock.reserved)
+            STOCK_LEVEL.labels(product_id=product_id).set(stock.available_quantity - stock.reserved_quantity)
             return {"status": "reserved", "quantity": quantity}
         except HTTPException:
             raise
@@ -212,8 +248,6 @@ async def release_reservation(order_id: int, session: AsyncSession = Depends(get
     """Release stock reservation for an order."""
     with INVENTORY_OPERATION_DURATION.labels(operation="release").time():
         try:
-            from shared.models import Stock, StockReservation
-
             result = await session.execute(select(StockReservation).where(StockReservation.order_id == order_id))
             reservations = result.scalars().all()
 
@@ -221,13 +255,13 @@ async def release_reservation(order_id: int, session: AsyncSession = Depends(get
                 return {"status": "no_reservations"}
 
             for reservation in reservations:
-                stock_result = await session.execute(select(Stock).where(Stock.product_id == reservation.product_id))
+                stock_result = await session.execute(select(Stock).where(Stock.id == reservation.stock_id))
                 stock = stock_result.scalar_one_or_none()
 
                 if stock:
-                    stock.reserved -= reservation.quantity
-                    stock.updated_at = datetime.utcnow()
-                    STOCK_LEVEL.labels(product_id=stock.product_id).set(stock.quantity - stock.reserved)
+                    stock.reserved_quantity -= reservation.quantity
+                    stock.last_updated = datetime.utcnow()
+                    STOCK_LEVEL.labels(product_id=stock.product_id).set(stock.available_quantity - stock.reserved_quantity)
 
                 await session.delete(reservation)
 
@@ -242,6 +276,4 @@ async def release_reservation(order_id: int, session: AsyncSession = Depends(get
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=settings.PORT)

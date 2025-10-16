@@ -1,7 +1,9 @@
 """Notification microservice main application."""
 
 import os
+import random
 import sys
+import uvicorn
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
@@ -15,6 +17,8 @@ from shared.middleware import PrometheusMiddleware
 from shared.schemas import HealthResponse, NotificationCreate, NotificationResponse, NotificationStatus
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from shared.models import Notification
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -91,8 +95,6 @@ async def send_notification(notification_data: NotificationCreate, session: Asyn
     """Send a notification."""
     with NOTIFICATION_OPERATION_DURATION.labels(operation="send").time():
         try:
-            from shared.models import Notification
-
             # Create notification record
             notification = Notification(
                 user_id=notification_data.user_id,
@@ -107,8 +109,6 @@ async def send_notification(notification_data: NotificationCreate, session: Asyn
 
             # Simulate sending notification
             # In real world, this would call email/SMS service API
-            import random
-
             success = random.random() > 0.05  # 95% success rate
 
             if success:
@@ -141,8 +141,6 @@ async def list_notifications(skip: int = 0, limit: int = 100, session: AsyncSess
     """Get all notifications."""
     with NOTIFICATION_OPERATION_DURATION.labels(operation="list").time():
         try:
-            from shared.models import Notification
-
             result = await session.execute(select(Notification).offset(skip).limit(limit))
             notifications = result.scalars().all()
 
@@ -158,8 +156,6 @@ async def get_notification(notification_id: int, session: AsyncSession = Depends
     """Get notification by ID."""
     with NOTIFICATION_OPERATION_DURATION.labels(operation="get").time():
         try:
-            from shared.models import Notification
-
             result = await session.execute(select(Notification).where(Notification.id == notification_id))
             notification = result.scalar_one_or_none()
 
@@ -181,8 +177,6 @@ async def get_user_notifications(user_id: int, session: AsyncSession = Depends(g
     """Get all notifications for a user."""
     with NOTIFICATION_OPERATION_DURATION.labels(operation="get_user_notifications").time():
         try:
-            from shared.models import Notification
-
             result = await session.execute(select(Notification).where(Notification.user_id == user_id))
             notifications = result.scalars().all()
 
@@ -198,8 +192,6 @@ async def get_order_notifications(order_id: int, session: AsyncSession = Depends
     """Get all notifications for an order."""
     with NOTIFICATION_OPERATION_DURATION.labels(operation="get_order_notifications").time():
         try:
-            from shared.models import Notification
-
             result = await session.execute(select(Notification).where(Notification.order_id == order_id))
             notifications = result.scalars().all()
 
@@ -215,8 +207,6 @@ async def retry_notification(notification_id: int, session: AsyncSession = Depen
     """Retry a failed notification."""
     with NOTIFICATION_OPERATION_DURATION.labels(operation="retry").time():
         try:
-            from shared.models import Notification
-
             result = await session.execute(select(Notification).where(Notification.id == notification_id))
             notification = result.scalar_one_or_none()
 
@@ -228,8 +218,6 @@ async def retry_notification(notification_id: int, session: AsyncSession = Depen
                 raise HTTPException(status_code=400, detail="Can only retry failed notifications")
 
             # Simulate retry
-            import random
-
             success = random.random() > 0.05
 
             if success:
@@ -252,6 +240,4 @@ async def retry_notification(notification_id: int, session: AsyncSession = Depen
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=settings.PORT)
