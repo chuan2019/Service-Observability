@@ -10,7 +10,7 @@ import httpx
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from prometheus_client import REGISTRY, Counter, Gauge, Histogram, make_asgi_app
+from prometheus_client import REGISTRY, Counter, Gauge, Histogram, Summary, make_asgi_app
 from shared.config import UserServiceSettings
 from shared.database import get_db_manager, init_db_manager
 from shared.middleware import PrometheusMiddleware
@@ -33,6 +33,13 @@ USER_OPERATIONS = Counter(
 USER_OPERATION_DURATION = Histogram(
     "user_service_operation_duration_seconds",
     "User service operation duration",
+    ["operation"],
+    registry=REGISTRY,
+)
+
+USER_OPERATION_DURATION_SUMMARY = Summary(
+    "user_service_operation_duration_summary_seconds",
+    "User service operation duration summary",
     ["operation"],
     registry=REGISTRY,
 )
@@ -136,6 +143,7 @@ async def check_all_services():
 
 
 @app.post("/users", response_model=UserResponse)
+@USER_OPERATION_DURATION_SUMMARY.labels(operation="create").time()
 async def create_user(user_data: UserCreate, session: AsyncSession = Depends(get_session)):
     """Create a new user."""
     with USER_OPERATION_DURATION.labels(operation="create").time():
@@ -164,6 +172,7 @@ async def create_user(user_data: UserCreate, session: AsyncSession = Depends(get
 
 
 @app.get("/users", response_model=List[UserResponse])
+@USER_OPERATION_DURATION_SUMMARY.labels(operation="list").time()
 async def get_users(skip: int = 0, limit: int = 100, session: AsyncSession = Depends(get_session)):
     """Get all users."""
     with USER_OPERATION_DURATION.labels(operation="list").time():
@@ -180,6 +189,7 @@ async def get_users(skip: int = 0, limit: int = 100, session: AsyncSession = Dep
 
 
 @app.get("/users/{user_id}", response_model=UserResponse)
+@USER_OPERATION_DURATION_SUMMARY.labels(operation="get").time()
 async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Get a specific user."""
     with USER_OPERATION_DURATION.labels(operation="get").time():
@@ -202,6 +212,7 @@ async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
 
 
 @app.put("/users/{user_id}", response_model=UserResponse)
+@USER_OPERATION_DURATION_SUMMARY.labels(operation="update").time()
 async def update_user(user_id: int, user_data: UserUpdate, session: AsyncSession = Depends(get_session)):
     """Update a user."""
     with USER_OPERATION_DURATION.labels(operation="update").time():
@@ -234,6 +245,7 @@ async def update_user(user_id: int, user_data: UserUpdate, session: AsyncSession
 
 
 @app.delete("/users/{user_id}")
+@USER_OPERATION_DURATION_SUMMARY.labels(operation="delete").time()
 async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Delete a user."""
     with USER_OPERATION_DURATION.labels(operation="delete").time():
