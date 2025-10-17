@@ -176,3 +176,6 @@ metrics.db
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Grafana data directory
+config/grafana_data/
