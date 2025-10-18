@@ -4,6 +4,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
+from functools import wraps
 from typing import List
 
 import httpx
@@ -14,10 +15,10 @@ from prometheus_client import REGISTRY, Counter, Gauge, Histogram, Summary, make
 from shared.config import UserServiceSettings
 from shared.database import get_db_manager, init_db_manager
 from shared.middleware import PrometheusMiddleware
+from shared.models import User
 from shared.schemas import HealthResponse, UserCreate, UserResponse, UserUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from shared.models import User
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -142,8 +143,22 @@ async def check_all_services():
     return {"gateway_status": "healthy", "services": service_status}
 
 
+def async_summary_time(summary, operation):
+    """Decorator to time async functions and record in a Summary metric."""
+
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            with summary.labels(operation=operation).time():
+                return await func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 @app.post("/users", response_model=UserResponse)
-@USER_OPERATION_DURATION_SUMMARY.labels(operation="create").time()
+@async_summary_time(USER_OPERATION_DURATION_SUMMARY, operation="create")
 async def create_user(user_data: UserCreate, session: AsyncSession = Depends(get_session)):
     """Create a new user."""
     with USER_OPERATION_DURATION.labels(operation="create").time():
@@ -172,7 +187,7 @@ async def create_user(user_data: UserCreate, session: AsyncSession = Depends(get
 
 
 @app.get("/users", response_model=List[UserResponse])
-@USER_OPERATION_DURATION_SUMMARY.labels(operation="list").time()
+@async_summary_time(USER_OPERATION_DURATION_SUMMARY, operation="list")
 async def get_users(skip: int = 0, limit: int = 100, session: AsyncSession = Depends(get_session)):
     """Get all users."""
     with USER_OPERATION_DURATION.labels(operation="list").time():
@@ -189,7 +204,7 @@ async def get_users(skip: int = 0, limit: int = 100, session: AsyncSession = Dep
 
 
 @app.get("/users/{user_id}", response_model=UserResponse)
-@USER_OPERATION_DURATION_SUMMARY.labels(operation="get").time()
+@async_summary_time(USER_OPERATION_DURATION_SUMMARY, operation="get")
 async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Get a specific user."""
     with USER_OPERATION_DURATION.labels(operation="get").time():
@@ -212,7 +227,7 @@ async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
 
 
 @app.put("/users/{user_id}", response_model=UserResponse)
-@USER_OPERATION_DURATION_SUMMARY.labels(operation="update").time()
+@async_summary_time(USER_OPERATION_DURATION_SUMMARY, operation="update")
 async def update_user(user_id: int, user_data: UserUpdate, session: AsyncSession = Depends(get_session)):
     """Update a user."""
     with USER_OPERATION_DURATION.labels(operation="update").time():
@@ -245,7 +260,7 @@ async def update_user(user_id: int, user_data: UserUpdate, session: AsyncSession
 
 
 @app.delete("/users/{user_id}")
-@USER_OPERATION_DURATION_SUMMARY.labels(operation="delete").time()
+@async_summary_time(USER_OPERATION_DURATION_SUMMARY, operation="delete")
 async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)):
     """Delete a user."""
     with USER_OPERATION_DURATION.labels(operation="delete").time():

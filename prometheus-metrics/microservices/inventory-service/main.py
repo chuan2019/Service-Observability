@@ -5,19 +5,18 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
-import uvicorn
 
+import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram, make_asgi_app
 from shared.config import InventoryServiceSettings
 from shared.database import get_db_manager, init_db_manager
 from shared.middleware import PrometheusMiddleware
+from shared.models import Stock, StockReservation
 from shared.schemas import HealthResponse, StockCreate, StockResponse, StockUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from shared.models import Stock, StockReservation
-
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -261,7 +260,9 @@ async def release_reservation(order_id: int, session: AsyncSession = Depends(get
                 if stock:
                     stock.reserved_quantity -= reservation.quantity
                     stock.last_updated = datetime.utcnow()
-                    STOCK_LEVEL.labels(product_id=stock.product_id).set(stock.available_quantity - stock.reserved_quantity)
+                    STOCK_LEVEL.labels(product_id=stock.product_id).set(
+                        stock.available_quantity - stock.reserved_quantity
+                    )
 
                 await session.delete(reservation)
 

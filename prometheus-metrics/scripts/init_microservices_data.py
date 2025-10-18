@@ -6,7 +6,6 @@ Creates sample users, products, and inventory via the API Gateway.
 
 import asyncio
 import aiohttp
-import json
 import random
 from typing import List, Dict, Any
 
@@ -282,8 +281,6 @@ class MicroservicesDataInitializer:
 
 async def main():
     """Main function to initialize sample data."""
-    import random
-    
     async with MicroservicesDataInitializer() as initializer:
         await initializer.initialize_all_data()
 
