@@ -36,10 +36,11 @@ SAMPLE_PRODUCTS = [
     "YMP-006", "WPC-007", "RSU-008", "KKS-009", "PBS-010"
 ]
 
-SAMPLE_USER_IDS = [1, 2, 3, 4, 5]
-SAMPLE_PRODUCT_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-SAMPLE_ORDER_IDS = [1, 2, 3, 4, 5]
-SAMPLE_PAYMENT_IDS = [1, 2, 3, 4, 5]
+SAMPLE_USER_IDS = [2, 51, 3, 4, 5, 52, 7, 9, 13, 21]
+SAMPLE_PRODUCT_IDS = [1, 2, 3, 5, 6, 7, 9, 10, 11, 12, 15]
+SAMPLE_ORDER_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 21, 25]
+SAMPLE_PAYMENT_IDS = [2, 3, 4, 5, 6, 7]
+SAMPLE_INVENTORY_PRODUCT_IDS = [2, 3, 23, 97, 98, 99, 101, 110, 112, 116]
 
 class LoadTester:
     def __init__(self, base_url: str = BASE_URL):
@@ -134,7 +135,7 @@ class LoadTester:
 
     async def test_inventory_get(self) -> Dict:
         """Test get inventory for specific product."""
-        product_id = random.choice(SAMPLE_PRODUCT_IDS)
+        product_id = random.choice(SAMPLE_INVENTORY_PRODUCT_IDS)
         url = f"{self.base_url}{ENDPOINTS['inventory']}/{product_id}"
         return await self.make_request("GET", url)
 
@@ -162,7 +163,7 @@ class LoadTester:
 
     async def test_payment_get(self) -> Dict:
         """Test get single payment endpoint."""
-        payment_id = random.choice(SAMPLE_PAYMENT_IDS)
+        payment_id = random.randint(2, 19)
         url = f"{self.base_url}{ENDPOINTS['payments']}/{payment_id}"
         return await self.make_request("GET", url)
 
@@ -173,7 +174,7 @@ class LoadTester:
 
     async def test_notification_get(self) -> Dict:
         """Test get single notification endpoint."""
-        notification_id = random.randint(1, 10)
+        notification_id = random.randint(2, 19)
         url = f"{self.base_url}{ENDPOINTS['notifications']}/{notification_id}"
         return await self.make_request("GET", url)
 
