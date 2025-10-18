@@ -7,10 +7,8 @@ Generates realistic traffic patterns to showcase metrics collection.
 import asyncio
 import aiohttp
 import random
-import json
 import time
-from typing import List, Dict, Any
-from datetime import datetime
+from typing import Dict, Any
 
 
 class TrafficGenerator:

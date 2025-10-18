@@ -2,11 +2,11 @@
 
 import os
 import sys
-import uvicorn
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
 
+import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram, make_asgi_app

@@ -5,20 +5,19 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
-import uvicorn
 
+import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram, make_asgi_app
 from shared.config import OrderServiceSettings
 from shared.database import get_db_manager, init_db_manager
 from shared.middleware import PrometheusMiddleware
+from shared.models import Order, OrderItem
 from shared.schemas import HealthResponse, OrderCreate, OrderResponse, OrderStatus
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from shared.models import Order, OrderItem
-
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

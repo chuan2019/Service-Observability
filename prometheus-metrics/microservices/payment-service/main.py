@@ -4,22 +4,21 @@ import os
 import random
 import sys
 import uuid
-import uvicorn
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List
 
+import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram, make_asgi_app
 from shared.config import PaymentServiceSettings
 from shared.database import get_db_manager, init_db_manager
 from shared.middleware import PrometheusMiddleware
+from shared.models import Payment
 from shared.schemas import HealthResponse, PaymentCreate, PaymentResponse, PaymentStatus
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from shared.models import Payment
-
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
