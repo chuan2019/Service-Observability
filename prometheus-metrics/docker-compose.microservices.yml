@@ -23,8 +23,8 @@ services:
     image: prometheuscommunity/postgres-exporter:v0.15.0
     environment:
       DATA_SOURCE_NAME: "postgresql://postgres:password@postgres:5432/ecommerce?sslmode=disable"
-    ports:
-      - "9187:9187"
+    expose:
+      - "9187"
     networks:
       - microservices
     depends_on:
@@ -44,8 +44,8 @@ services:
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/ecommerce
-    ports:
-      - "8001:8001"
+    expose:
+      - "8001"
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,8 +65,8 @@ services:
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/ecommerce
-    ports:
-      - "8002:8002"
+    expose:
+      - "8002"
     depends_on:
       postgres:
         condition: service_healthy
@@ -86,8 +86,8 @@ services:
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/ecommerce
-    ports:
-      - "8003:8003"
+    expose:
+      - "8003"
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,8 +109,8 @@ services:
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/ecommerce
-    ports:
-      - "8005:8005"
+    expose:
+      - "8005"
     depends_on:
       postgres:
         condition: service_healthy
@@ -130,8 +130,8 @@ services:
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/ecommerce
-    ports:
-      - "8006:8006"
+    expose:
+      - "8006"
     depends_on:
       postgres:
         condition: service_healthy
@@ -156,8 +156,8 @@ services:
       - INVENTORY_SERVICE_URL=http://inventory-service:8003
       - PAYMENT_SERVICE_URL=http://payment-service:8005
       - NOTIFICATION_SERVICE_URL=http://notification-service:8006
-    ports:
-      - "8004:8004"
+    expose:
+      - "8004"
     depends_on:
       postgres:
         condition: service_healthy
