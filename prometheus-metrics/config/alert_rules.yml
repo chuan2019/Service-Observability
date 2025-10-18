@@ -1,0 +1,233 @@
+groups:
+  # Service Availability Alerts
+  - name: service_availability
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up{job=~".*-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: ServiceHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status_code=~"5..", job=~".*-service"}[5m])) by (service)
+            /
+            sum(rate(http_requests_total{job=~".*-service"}[5m])) by (service)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: errors
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "{{ $labels.service }} has an error rate of {{ $value | humanizePercentage }} (threshold: 5%)."
+
+  # Performance Alerts
+  - name: service_performance
+    interval: 30s
+    rules:
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_request_duration_seconds_bucket{job=~".*-service"}[5m])) by (service, le)
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High latency on {{ $labels.service }}"
+          description: "{{ $labels.service }} has a 95th percentile latency of {{ $value }}s (threshold: 1s)."
+
+      - alert: VeryHighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_request_duration_seconds_bucket{job=~".*-service"}[5m])) by (service, le)
+          ) > 3
+        for: 2m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "Very high latency on {{ $labels.service }}"
+          description: "{{ $labels.service }} has a 95th percentile latency of {{ $value }}s (threshold: 3s)."
+
+  # Inventory-Specific Alerts
+  - name: inventory_alerts
+    interval: 30s
+    rules:
+      - alert: LowStockLevel
+        expr: inventory_service_stock_level < 10
+        for: 5m
+        labels:
+          severity: warning
+          category: inventory
+        annotations:
+          summary: "Low stock level for product {{ $labels.product_id }}"
+          description: "Product {{ $labels.product_id }} has only {{ $value }} units in stock."
+
+      - alert: CriticalStockLevel
+        expr: inventory_service_stock_level < 5
+        for: 2m
+        labels:
+          severity: critical
+          category: inventory
+        annotations:
+          summary: "Critical stock level for product {{ $labels.product_id }}"
+          description: "Product {{ $labels.product_id }} has only {{ $value }} units in stock. Immediate restock needed."
+
+      - alert: InventoryOperationFailureRate
+        expr: |
+          (
+            sum(rate(inventory_service_operations_total{status="error"}[5m])) by (operation)
+            /
+            sum(rate(inventory_service_operations_total[5m])) by (operation)
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: inventory
+        annotations:
+          summary: "High failure rate for inventory operation {{ $labels.operation }}"
+          description: "Inventory operation {{ $labels.operation }} has a failure rate of {{ $value | humanizePercentage }}."
+
+  # Order Service Alerts
+  - name: order_alerts
+    interval: 30s
+    rules:
+      - alert: HighOrderFailureRate
+        expr: |
+          (
+            sum(rate(order_service_operations_total{status="error"}[5m])) by (operation)
+            /
+            sum(rate(order_service_operations_total[5m])) by (operation)
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: orders
+        annotations:
+          summary: "High failure rate for order operation {{ $labels.operation }}"
+          description: "Order operation {{ $labels.operation }} has a failure rate of {{ $value | humanizePercentage }}."
+
+  # Payment Service Alerts
+  - name: payment_alerts
+    interval: 30s
+    rules:
+      - alert: HighPaymentFailureRate
+        expr: |
+          (
+            sum(rate(payment_service_operations_total{status="error"}[5m])) by (operation)
+            /
+            sum(rate(payment_service_operations_total[5m])) by (operation)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          category: payments
+        annotations:
+          summary: "High payment failure rate for {{ $labels.operation }}"
+          description: "Payment operation {{ $labels.operation }} has a failure rate of {{ $value | humanizePercentage }}. Immediate attention required."
+
+  # System Resource Alerts
+  - name: system_resources
+    interval: 30s
+    rules:
+      - alert: HighRequestsInProgress
+        expr: http_requests_in_progress{job=~".*-service"} > 100
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "High number of requests in progress on {{ $labels.service }}"
+          description: "{{ $labels.service }} has {{ $value }} requests in progress (threshold: 100)."
+
+      - alert: PrometheusTargetDown
+        expr: up{job="prometheus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: monitoring
+        annotations:
+          summary: "Prometheus is down"
+          description: "Prometheus monitoring has been down for more than 1 minute."
+
+  # Database Alerts
+  - name: database_alerts
+    interval: 30s
+    rules:
+      - alert: PostgresDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 1 minute. All services will be affected."
+
+      - alert: PostgresHighConnections
+        expr: sum(pg_stat_database_numbackends) > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "PostgreSQL has high number of connections"
+          description: "PostgreSQL has {{ $value }} active connections (threshold: 80)."
+
+      - alert: PostgresSlowQueries
+        expr: rate(pg_stat_database_tup_returned[5m]) / rate(pg_stat_database_tup_fetched[5m]) < 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "PostgreSQL has slow query performance"
+          description: "PostgreSQL query efficiency is {{ $value | humanizePercentage }}."
+
+      - alert: PostgresTooManyDeadTuples
+        expr: pg_stat_database_n_dead_tup > 10000
+        for: 10m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "PostgreSQL has too many dead tuples"
+          description: "Database {{ $labels.datname }} has {{ $value }} dead tuples. Consider running VACUUM."
+
+  # API Gateway Alerts
+  - name: gateway_alerts
+    interval: 30s
+    rules:
+      - alert: HighGatewayErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status_code=~"5..", endpoint=~"/api/.*"}[5m]))
+            /
+            sum(rate(http_requests_total{endpoint=~"/api/.*"}[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: gateway
+        annotations:
+          summary: "High error rate at API Gateway"
+          description: "API Gateway has an error rate of {{ $value | humanizePercentage }} (threshold: 5%)."
+
+      - alert: HighGatewayTraffic
+        expr: sum(rate(http_requests_total{endpoint=~"/api/.*"}[1m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: gateway
+        annotations:
+          summary: "High traffic at API Gateway"
+          description: "API Gateway is handling {{ $value }} requests per second (threshold: 1000 req/s)."
