@@ -3,7 +3,7 @@
 ## Metrics
 - **Metrics** (Prometheus + Grafana): [prometheus-metrics](./prometheus-metrics/)
 
-For detailed explanations, please refer to my tutorial: [Service Observability (1) - Demonstration Web Application and Metrics](https://medium.com/python-in-plain-english/service-observability-1-demonstration-web-application-and-metrics-3771caa5d727)
+- For detailed explanations, please refer to my tutorial: [Service Observability (1) - Demonstration Web Application and Metrics](https://medium.com/python-in-plain-english/service-observability-1-demonstration-web-application-and-metrics-3771caa5d727)
 
 <img width="1912" height="849" alt="image" src="https://github.com/user-attachments/assets/71c26a95-b9d5-43ce-95b7-e8c13ad32f73" />
 <img width="1908" height="870" alt="image" src="https://github.com/user-attachments/assets/0055a4ef-8161-445c-b3dd-cf6ebecb7c05" />
