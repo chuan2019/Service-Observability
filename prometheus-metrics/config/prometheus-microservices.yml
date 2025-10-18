@@ -7,8 +7,7 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets:
-            # Uncomment when Alertmanager is deployed
-            # - 'alertmanager:9093'
+            - 'alertmanager:9093'
       scheme: http
       timeout: 10s
       api_version: v2
@@ -16,50 +15,62 @@ alerting:
 # Load alert rules
 rule_files:
   - "alert_rules.yml"
-  # - "first_rules.yml"
-  # - "second_rules.yml"
 
 scrape_configs:
-  # User Service
-  - job_name: 'user-service'
-    static_configs:
-      - targets: ['user-service:8001']
-    metrics_path: '/metrics'
-    scrape_interval: 5s
+  # # User Service
+  # - job_name: 'user-service'
+  #   static_configs:
+  #     - targets: ['user-service:8001']
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 5s
 
-  # Product Service
-  - job_name: 'product-service'
-    static_configs:
-      - targets: ['product-service:8002']
-    metrics_path: '/metrics'
-    scrape_interval: 5s
+  # # Product Service
+  # - job_name: 'product-service'
+  #   static_configs:
+  #     - targets: ['product-service:8002']
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 5s
 
-  # Inventory Service
-  - job_name: 'inventory-service'
-    static_configs:
-      - targets: ['inventory-service:8003']
-    metrics_path: '/metrics'
-    scrape_interval: 5s
+  # # Inventory Service
+  # - job_name: 'inventory-service'
+  #   static_configs:
+  #     - targets: ['inventory-service:8003']
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 5s
 
-  # Order Service
-  - job_name: 'order-service'
-    static_configs:
-      - targets: ['order-service:8004']
-    metrics_path: '/metrics'
-    scrape_interval: 5s
+  # # Order Service
+  # - job_name: 'order-service'
+  #   static_configs:
+  #     - targets: ['order-service:8004']
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 5s
 
-  # Payment Service
-  - job_name: 'payment-service'
-    static_configs:
-      - targets: ['payment-service:8005']
-    metrics_path: '/metrics'
-    scrape_interval: 5s
+  # # Payment Service
+  # - job_name: 'payment-service'
+  #   static_configs:
+  #     - targets: ['payment-service:8005']
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 5s
 
-  # Notification Service
-  - job_name: 'notification-service'
+  # # Notification Service
+  # - job_name: 'notification-service'
+  #   static_configs:
+  #     - targets: ['notification-service:8006']
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 5s
+
+  - job_name: 'fastapi-app'
     static_configs:
-      - targets: ['notification-service:8006']
-    metrics_path: '/metrics'
+      - targets:
+        - 'user-service:8001'
+        - 'product-service:8002'
+        - 'inventory-service:8003'
+        - 'order-service:8004'
+        - 'payment-service:8005'
+        - 'notification-service:8006'
+        labels:
+          application: 'ecommerce'
+          environment: 'development'
     scrape_interval: 5s
 
   # Prometheus itself
